@@ -96,7 +96,7 @@ function move_projectiles() {
         console.log($(shot).css("top"))
         if (parseInt($(shot).css("top")) <= -20) {
             shots.splice(index, 1)
-            delete $(shot).remove()
+            $(shot).remove()
         }
     })
 }
