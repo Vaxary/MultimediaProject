@@ -10,8 +10,14 @@ body {
 #player {
     position: absolute;
 }
+.projectile {
+    position: absolute;
+}
 
 #gamespace {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
     overflow: hidden;
     position: relative;
     background-color: #73a6e6;
