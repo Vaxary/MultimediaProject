@@ -1,0 +1,25 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: rgb(121, 118, 118);
+}
+
+#player {
+    position: absolute;
+}
+
+#gamespace {
+    overflow: hidden;
+    position: relative;
+    background-color: #73a6e6;
+    display: block;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 600px;
+    height: 900px;
+    image-rendering: pixelated;
+}
