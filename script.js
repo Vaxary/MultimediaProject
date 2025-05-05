@@ -155,7 +155,7 @@ function spawn_meteorite() {
 
 function move_meteorites() {
     $(".meteorite").each(function () {
-        $(this).animate({top: ga_height+10, rotate: "+180deg"},15000, "linear")
+        $(this).animate({top: ga_height+10, rotate: "+360deg"},15000, "linear")
         if (parseInt($(this).css("top")) >= ga_height) {
             $(this).remove()
         }

@@ -18,12 +18,12 @@ body {
 }
 
 #gamespace {
+    background-image: url("spacebackground.png");
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
     overflow: hidden;
     position: relative;
-    background-color: #73a6e6;
     display: block;
     margin-top: 10px;
     margin-left: auto;
