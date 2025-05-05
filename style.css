@@ -13,6 +13,9 @@ body {
 .projectile {
     position: absolute;
 }
+.meteorite {
+    position: absolute;
+}
 
 #gamespace {
     -webkit-user-select: none;
