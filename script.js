@@ -27,18 +27,21 @@ $(function () {
         projectile_base.on('load', function () {
 
             init_projectile();
-            $(window).on('mousedown', function () {
-                if (shootInterval===0) {
-                    shootInterval=setInterval(shoot_projectile, 75)
-                    $(window).trigger('mousedown')
+            $(window).on('mousedown', function (event) {
+                if (event.which===1) {
+                    if (shootInterval===0) {
+                        shootInterval=setInterval(shoot_projectile, 75)
+                        $(window).trigger('mousedown')
+                    }
                 }
-
             });
-            $(window).on('mouseup', function () {
-                if (shootInterval!==0) {
-                    clearInterval(shootInterval)
+            $(window).on('mouseup', function (event) {
+                if (event.which===1) {
+                    if (shootInterval !== 0) {
+                        clearInterval(shootInterval)
+                    }
+                    shootInterval = 0
                 }
-                shootInterval=0
             });
             console.log("Projectile ready")
         })
@@ -123,10 +126,10 @@ function calculate_distance(pos1, pos2) {
 
 function init_meteorite() {
     $(meteorite_base).css({
-        top: -200,
+        top: -21,
         left: 100,
-        width: 84, //63 sem rossz tbh
-        height: 84
+        width: 21, //63 sem rossz tbh
+        height: 21
     })
 }
 
@@ -135,8 +138,11 @@ function detect_projectile_hit() {
         $(".meteorite").each( function (m_index, current_meteorite) {
             meteoritepos=[parseInt($(current_meteorite).css("left"))+parseInt($(current_meteorite).css("width"))/2,parseInt($(current_meteorite).css("top"))+parseInt($(current_meteorite).css("height"))/2]
             shotpos=[parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width"))/2,parseInt($(current_projectile).css("top"))]
-
-            if (calculate_distance(meteoritepos, shotpos) <= meteorite_base.width()/2+0.05) {
+            if (calculate_distance(meteoritepos, shotpos) <= parseInt($(current_meteorite).css("width"))/2+0.05) {
+                $(current_meteorite).attr({hp:parseInt($(current_meteorite).attr("hp"))-1})
+                if (parseInt($(current_meteorite).attr("hp"))===0) {
+                    $(current_meteorite).remove()
+                }
                 $(current_projectile).remove()
             }
         })
@@ -145,17 +151,47 @@ function detect_projectile_hit() {
 }
 
 function spawn_meteorite() {
+    size=Math.random()
+    hp=0
+    if (size <= 0.2) {
+        hp=4
+        size = meteorite_base.width()*2
+    } else if (size <= 0.4) {
+        hp=6
+        size = meteorite_base.width()*2.5
+    } else if (size <= 0.6) {
+        hp=8
+        size = meteorite_base.width()*3
+    } else if (size <= 0.8) {
+        hp=10
+        size = meteorite_base.width()*3.5
+    } else {
+        hp=12
+        size = meteorite_base.width()*4
+    }
+    console.log(size)
     meteoritediv.append($(cloneMeteor()).css({
-        top: -200,
-        left: Math.round(Math.random()*(ga_width-meteorite_base.width())),
-        width: 84, //63 sem rossz tbh
-        height: 84
-    }))
+        top: -size,
+        left: Math.round(Math.random()*(ga_width-size)),
+        width: size, //63 sem rossz tbh
+        height: size
+    }).attr({hp:hp}))
 }
 
 function move_meteorites() {
     $(".meteorite").each(function () {
-        $(this).animate({top: ga_height+10, rotate: "+360deg"},15000, "linear")
+        rotation=Math.random()-0.5
+        sign=0
+        if (rotation<=0) {
+            rotation=rotation*180*2+300
+            sign="-"
+        } else {
+            rotation=rotation*180*2+300
+            sign="+"
+
+        }
+
+        $(this).animate({top: ga_height+10, rotate: sign+rotation+"deg"},15000, "linear")
         if (parseInt($(this).css("top")) >= ga_height) {
             $(this).remove()
         }
