@@ -6,11 +6,15 @@ let shotsdiv, meteoritediv
 let projectile_base
 let meteorite_base
 let proj_width, proj_height, proj_top
+let game_timer
 let seconds_elapsed=0
+let time_since_last_spawn=0
+let paused=false
 let ship_shielded=false
 let ship_hit=false
 let base_ship_height, base_ship_width
 let spawning_meteorites
+let game_logic_repeater
 
 $(function () {
     console.log("Site ready");
@@ -36,49 +40,21 @@ $(function () {
             base_ship_width=player.width()*4
             init_player();
             init_projectile();
-            game_logic=setInterval(game_logic, 1)
+            game_logic_repeater=setInterval(game_logic, 1)
             player_loaded=true
         }
     })
 
     projectile_base.on('load', function () {
-        $(window).on('mousedown', function (event) {
-            if (event.which===1) {
-                if (shootInterval===0) {
-                    shootInterval=setInterval(shoot_projectile, 125)
-                }
-            }
-        });
-        $(window).on('keydown', function (event) {
-            if (parseInt(event.keyCode)===32) {
-                if (shootInterval===0) {
-                    shootInterval=setInterval(shoot_projectile, 125)
-                }
-            }
-        });
-        $(window).on('mouseup', function (event) {
-            if (event.which===1) {
-                if (shootInterval !== 0) {
-                    clearInterval(shootInterval)
-                }
-                shootInterval = 0
-            }
-        });
-        $(window).on('keyup ', function (event) {
-            if (event.keyCode===32) {
-                if (shootInterval !== 0) {
-                    clearInterval(shootInterval)
-                }
-                shootInterval = 0
-            }
-        });
+        add_ship_eventhandlers()
         console.log("Projectile ready")
     })
 
 
 
-    let game_timer=setInterval( function () {
+    game_timer=setInterval( function () {
         seconds_elapsed+=0.5
+        time_since_last_spawn+=0.5
     }, 500)
 
 
@@ -88,7 +64,6 @@ $(function () {
 
     })
 
-    $(window).on('mousemove', move_player);
 
     $(gamespace).on('dragstart', function(event) { event.preventDefault(); });
 })
@@ -111,6 +86,50 @@ function init_player() {
     });
     $(player).css({top:ga_height-base_ship_height-50});
 }
+function add_ship_eventhandlers() {
+    $(window).on('mousemove', move_player);
+    $(window).on('mousedown', function (event) {
+        if (event.which===1) {
+            if (shootInterval===0) {
+                shootInterval=setInterval(shoot_projectile, 125)
+            }
+        }
+    });
+    $(window).on('keydown', function (event) {
+        if (parseInt(event.keyCode)===32) {
+            if (shootInterval===0) {
+                shootInterval=setInterval(shoot_projectile, 125)
+            }
+        }
+        else if (event.keyCode===69) {
+            if (!paused) {
+                pause_game()
+                paused=true
+            } else {
+                unpause_game()
+                paused=false
+            }
+
+        }
+    });
+    $(window).on('mouseup', function (event) {
+        if (event.which===1) {
+            if (shootInterval !== 0) {
+                clearInterval(shootInterval)
+            }
+            shootInterval = 0
+        }
+    });
+    $(window).on('keyup ', function (event) {
+        if (event.keyCode===32) {
+            if (shootInterval !== 0) {
+                clearInterval(shootInterval)
+            }
+            shootInterval = 0
+        }
+    });
+}
+
 
 function move_player(e) {
     let rel_mouse_pos_x = Math.ceil(e.clientX - gamespace.offset().left - base_ship_width/2);
@@ -133,8 +152,8 @@ function init_projectile() {
 function move_projectiles() {
     $(".projectile").each(function () {
         $(this).animate({
-            top: "-40"
-        }, 500, "linear")
+            top: "-=10"
+        }, 1)
         if (parseInt($(this).css("top")) <= -20) {
             $(this).remove()
         }
@@ -160,7 +179,7 @@ function shoot_projectile() {
 }
 
 function calculate_distance(pos1, pos2) {
-    return Math.sqrt(Math.pow(pos1[0]-pos2[0],2)+Math.pow(pos1[1]-pos2[1],2))
+    return Math.pow(pos1[0]-pos2[0],2)+Math.pow(pos1[1]-pos2[1],2)
 }
 
 function init_meteorite() {
@@ -183,7 +202,7 @@ function detect_projectile_hit() {
                 parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width"))/2,
                 parseInt($(current_projectile).css("top"))
             ]
-            if (calculate_distance(meteoritepos, shotpos) <= parseInt($(current_meteorite).css("width"))/2+0.05) {
+            if (calculate_distance(meteoritepos, shotpos) <= Math.pow(parseInt($(current_meteorite).css("width"))/2,2)) {
                 $(current_meteorite).attr({hp:parseInt($(current_meteorite).attr("hp"))-1})
                 if (parseInt($(current_meteorite).attr("hp"))===0) {
                     $(current_meteorite).remove()
@@ -204,7 +223,7 @@ function detect_spaceshit_hit() {
             parseInt($(player).css("left"))+player.width()/2,
             parseInt($(player).css("top"))+player.height()/4*2.5
         ]
-        if (calculate_distance(meteoritepos, shippos) <= player.width()/3*2) {
+        if (calculate_distance(meteoritepos, shippos) <= Math.pow(player.width()/3*2,2)) {
             register_ship_hit()
         }
     })
@@ -244,31 +263,39 @@ function spawn_meteorite() {
         hp=12
         size = meteorite_base.width()*4
     }
+
+    let fallspeed=0.25+Math.min(seconds_elapsed, 200)*0.0025
+
+    let rotation=Math.random()-0.5
+    if (rotation<=0) {
+        rotation=rotation*1.5-1.5
+    } else {
+        rotation=rotation*1.5+1.5
+    }
+
     meteoritediv.append($(cloneMeteor()).css({
         top: -size,
         left: Math.round(Math.random()*(ga_width-size)),
         width: size,
         height: size
-    }).attr({hp:hp}))
-    spawning_meteorites=setTimeout(spawn_meteorite,2000-Math.min(220,seconds_elapsed)*4)
+    }).attr({
+        hp: hp,
+        meteorrotation: rotation,
+        fallspeed: fallspeed
+    }))
+    time_since_last_spawn=0
+    spawning_meteorites=setTimeout(spawn_meteorite,2000-Math.min(200,seconds_elapsed)*4)
 
 }
 
 function move_meteorites() {
     $(".meteorite").each(function () {
-        let rotation=Math.random()-0.5
-        let sign
-        let falltime=15000-Math.min(seconds_elapsed, 220)*50
-        if (rotation<=0) {
-            rotation=rotation*180*2+300
-            sign="-"
-        } else {
-            rotation=rotation*180*2+300
-            sign="+"
+        let fallspeed = $(this).attr("fallspeed")
 
-        }
-
-        $(this).animate({top: ga_height+10, rotate: sign+rotation+"deg"},falltime, "linear")
+        let rotation = $(this).attr("meteorrotation")
+        let sign = rotation<0 ? "-=" : "+="
+        $(this).animate({rotate: sign+Math.abs(rotation)+"deg"},1, "linear")
+        $(this).css( {top: "+="+fallspeed})
         if (parseInt($(this).css("top")) >= ga_height) {
             $(this).remove()
         }
@@ -276,10 +303,25 @@ function move_meteorites() {
 }
 
 function pause_game() {
+    clearTimeout(spawning_meteorites)
+    clearInterval(game_logic_repeater)
     $(".meteorite").each(function () {
-        $(this).stop()
+        $(this).stop(true)
     })
     $(".projectile").each(function () {
-        $(this).stop()
+        $(this).stop(true)
     })
+    $(window).off("mousemove mousedown mouseup keyup")
+    clearInterval(game_timer)
+    //time_since_last_spawn for next meteorite spawn
+}
+
+function unpause_game() {
+    spawning_meteorites=setTimeout(spawn_meteorite,2000-Math.min(200,seconds_elapsed)*4-time_since_last_spawn)
+    game_logic_repeater=setInterval(game_logic,1)
+    add_ship_eventhandlers()
+    game_timer=setInterval( function () {
+        seconds_elapsed+=0.5
+        time_since_last_spawn+=0.5
+    }, 500)
 }
