@@ -1,12 +1,15 @@
 let gamespace
 let ga_width, ga_height
 let player
-let player_width, player_height
 let shootInterval=0
 let shotsdiv, meteoritediv
 let projectile_base
+let meteorite_base
 let proj_width, proj_height
 let seconds_elapsed
+let ship_shielded=false
+let ship_hit=false
+let base_ship_height, base_ship_width
 
 $(function () {
     console.log("Site ready");
@@ -15,51 +18,60 @@ $(function () {
     player=$("<img src='spaceship.png' alt='player spaceship' id='player'>");
     projectile_base=$("<img src='spaceshipprojectile.png' alt='player spaceship projectile' class='projectile'>");
     shotsdiv=$("#shots")
-    meteorite_base=$("<img src='meteorie1.png' alt='meteorite' class='meteorite'>")
+    meteorite_base = $("<img src='meteorie1.png' alt='meteorite' class='meteorite'>")
     meteoritediv=$("#meteorites")
+
+    let player_loaded=false
 
     ga_width = gamespace.width();
     ga_height = gamespace.height();
 
-    player.on('load', function () {
-        player.appendTo(gamespace)
-        init_player();
-        projectile_base.on('load', function () {
 
-            init_projectile();
-            $(window).on('mousedown', function (event) {
-                if (event.which===1) {
-                    if (shootInterval===0) {
-                        shootInterval=setInterval(shoot_projectile, 125)
-                    }
+    player.on('load', function () {
+        if (!player_loaded) {
+            player.appendTo(gamespace)
+            base_ship_height=player.height()*4
+            base_ship_width=player.width()*4
+            init_player();
+            game_logic=setInterval(game_logic, 1)
+            player_loaded=true
+        }
+    })
+
+    projectile_base.on('load', function () {
+
+        init_projectile();
+        $(window).on('mousedown', function (event) {
+            if (event.which===1) {
+                if (shootInterval===0) {
+                    shootInterval=setInterval(shoot_projectile, 125)
                 }
-            });
-            $(window).on('keydown', function (event) {
-                if (parseInt(event.keyCode)===32) {
-                    if (shootInterval===0) {
-                        shootInterval=setInterval(shoot_projectile, 125)
-                    }
+            }
+        });
+        $(window).on('keydown', function (event) {
+            if (parseInt(event.keyCode)===32) {
+                if (shootInterval===0) {
+                    shootInterval=setInterval(shoot_projectile, 125)
                 }
-            });
-            $(window).on('mouseup', function (event) {
-                if (event.which===1) {
-                    if (shootInterval !== 0) {
-                        clearInterval(shootInterval)
-                    }
-                    shootInterval = 0
+            }
+        });
+        $(window).on('mouseup', function (event) {
+            if (event.which===1) {
+                if (shootInterval !== 0) {
+                    clearInterval(shootInterval)
                 }
-            });
-            $(window).on('keyup ', function (event) {
-                if (event.keyCode===32) {
-                    if (shootInterval !== 0) {
-                        clearInterval(shootInterval)
-                    }
-                    shootInterval = 0
+                shootInterval = 0
+            }
+        });
+        $(window).on('keyup ', function (event) {
+            if (event.keyCode===32) {
+                if (shootInterval !== 0) {
+                    clearInterval(shootInterval)
                 }
-            });
-            console.log("Projectile ready")
-        })
-        game_logic=setInterval(game_logic, 1)
+                shootInterval = 0
+            }
+        });
+        console.log("Projectile ready")
     })
 
     game_timer=setInterval( function () {
@@ -82,20 +94,24 @@ function game_logic() {
     move_projectiles()
     move_meteorites()
     detect_projectile_hit()
+    if (!ship_shielded) {
+        detect_spaceshit_hit()
+    }
+
 }
 
 function init_player() {
+    $(player).attr({hp:3})
     $(player).css({
-        height: 84
+        height: base_ship_height,
+        width: base_ship_width
     });
-    player_width = player.width();
-    player_height = player.height();
-    $(player).css({top:ga_height-player_height-50});
+    $(player).css({top:ga_height-base_ship_height-50});
 }
 
 function move_player(e) {
-    let rel_mouse_pos_x = Math.ceil(e.clientX - gamespace.offset().left - player_width/2);
-    rel_mouse_pos_x=Math.min(Math.max(rel_mouse_pos_x,-player_width/2+20),ga_width-player_width/2-20);
+    let rel_mouse_pos_x = Math.ceil(e.clientX - gamespace.offset().left - base_ship_width/2);
+    rel_mouse_pos_x=Math.min(Math.max(rel_mouse_pos_x,-base_ship_width/2+20),ga_width-base_ship_width/2-20);
     $(player).css({
         left:rel_mouse_pos_x
     });
@@ -108,7 +124,7 @@ function init_projectile() {
     });
     proj_width=projectile_base.width();
     proj_height=projectile_base.height();
-    $(projectile_base.css({top: ga_height-50-player_height-30}))
+    $(projectile_base.css({top: ga_height-50-base_ship_height-30}))
 }
 
 function move_projectiles() {
@@ -132,9 +148,12 @@ function cloneMeteor(){
 }
 
 function shoot_projectile() {
-    shotsdiv.append($(cloneProjectile()).css({
-        left: Math.ceil(parseInt($(player).css("left"))+player_width/2-proj_width/2)
-    }))
+    if (!ship_hit) {
+        shotsdiv.append($(cloneProjectile()).css({
+            left: Math.ceil(parseInt($(player).css("left"))+base_ship_width/2-proj_width/2)
+        }))
+    }
+
 }
 
 function calculate_distance(pos1, pos2) {
@@ -153,8 +172,14 @@ function init_meteorite() {
 function detect_projectile_hit() {
     $(".projectile").each( function (p_index, current_projectile) {
         $(".meteorite").each( function (m_index, current_meteorite) {
-            meteoritepos=[parseInt($(current_meteorite).css("left"))+parseInt($(current_meteorite).css("width"))/2,parseInt($(current_meteorite).css("top"))+parseInt($(current_meteorite).css("height"))/2]
-            shotpos=[parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width"))/2,parseInt($(current_projectile).css("top"))]
+            meteoritepos=[
+                parseInt($(current_meteorite).css("left"))+parseInt($(current_meteorite).css("width"))/2,
+                parseInt($(current_meteorite).css("top"))+parseInt($(current_meteorite).css("height"))/2
+            ]
+            shotpos=[
+                parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width"))/2,
+                parseInt($(current_projectile).css("top"))
+            ]
             if (calculate_distance(meteoritepos, shotpos) <= parseInt($(current_meteorite).css("width"))/2+0.05) {
                 $(current_meteorite).attr({hp:parseInt($(current_meteorite).attr("hp"))-1})
                 if (parseInt($(current_meteorite).attr("hp"))===0) {
@@ -164,7 +189,33 @@ function detect_projectile_hit() {
             }
         })
     })
+}
 
+function detect_spaceshit_hit() {
+    $(".meteorite").each( function () {
+        meteoritepos=[
+            parseInt($(this).css("left"))+parseInt($(this).css("width"))/2,
+            parseInt($(this).css("top"))+parseInt($(this).css("height"))/2
+        ]
+        shippos=[
+            parseInt($(player).css("left"))+player.width()/2,
+            parseInt($(player).css("top"))+player.height()/4*2.5
+        ]
+        if (calculate_distance(meteoritepos, shippos) <= player.width()/3*2) {
+            console.log("Ship hit")
+            ship_shielded=true
+            ship_hit=true
+            $(player).attr({src: "spaceshiphit.gif"})
+            setTimeout(function () {
+                $(player).attr({src: "spaceshipshielded.png"})
+                ship_hit=false
+            }, 1000)
+            setTimeout(function () {
+                $(player).attr({src: "spaceship.png"})
+                ship_shielded=false
+            }, 4000)
+        }
+    })
 }
 
 function spawn_meteorite() {
