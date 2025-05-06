@@ -5,7 +5,7 @@ let shootInterval=0
 let shotsdiv, meteoritediv
 let projectile_base
 let meteorite_base
-let proj_width, proj_height
+let proj_width, proj_height, proj_top
 let seconds_elapsed
 let ship_shielded=false
 let ship_hit=false
@@ -29,18 +29,18 @@ $(function () {
 
     player.on('load', function () {
         if (!player_loaded) {
+            console.log("loaded player")
             player.appendTo(gamespace)
             base_ship_height=player.height()*4
             base_ship_width=player.width()*4
             init_player();
+            init_projectile();
             game_logic=setInterval(game_logic, 1)
             player_loaded=true
         }
     })
 
     projectile_base.on('load', function () {
-
-        init_projectile();
         $(window).on('mousedown', function (event) {
             if (event.which===1) {
                 if (shootInterval===0) {
@@ -74,14 +74,16 @@ $(function () {
         console.log("Projectile ready")
     })
 
-    game_timer=setInterval( function () {
+
+
+    let game_timer=setInterval( function () {
         seconds_elapsed+=0.5
     }, 500)
 
 
     meteorite_base.on('load', function () {
         init_meteorite();
-        spawning_meteorites=setInterval(spawn_meteorite, 2000) //should make it with random
+        let spawning_meteorites=setInterval(spawn_meteorite, 2000) //should make it with random
 
     })
 
@@ -118,13 +120,13 @@ function move_player(e) {
 }
 
 function init_projectile() {
+    proj_width=4;
+    proj_height=24;
+    proj_top=ga_height-base_ship_height-50;
     $(projectile_base).css({
-        height: 24,
-        width: 4
-    });
-    proj_width=projectile_base.width();
-    proj_height=projectile_base.height();
-    $(projectile_base.css({top: ga_height-50-base_ship_height-30}))
+        top: proj_top,
+        height: proj_height,
+        width: proj_width})
 }
 
 function move_projectiles() {
@@ -172,11 +174,11 @@ function init_meteorite() {
 function detect_projectile_hit() {
     $(".projectile").each( function (p_index, current_projectile) {
         $(".meteorite").each( function (m_index, current_meteorite) {
-            meteoritepos=[
+            let meteoritepos=[
                 parseInt($(current_meteorite).css("left"))+parseInt($(current_meteorite).css("width"))/2,
                 parseInt($(current_meteorite).css("top"))+parseInt($(current_meteorite).css("height"))/2
             ]
-            shotpos=[
+            let shotpos=[
                 parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width"))/2,
                 parseInt($(current_projectile).css("top"))
             ]
@@ -193,11 +195,11 @@ function detect_projectile_hit() {
 
 function detect_spaceshit_hit() {
     $(".meteorite").each( function () {
-        meteoritepos=[
+        let meteoritepos=[
             parseInt($(this).css("left"))+parseInt($(this).css("width"))/2,
             parseInt($(this).css("top"))+parseInt($(this).css("height"))/2
         ]
-        shippos=[
+        let shippos=[
             parseInt($(player).css("left"))+player.width()/2,
             parseInt($(player).css("top"))+player.height()/4*2.5
         ]
@@ -219,8 +221,8 @@ function detect_spaceshit_hit() {
 }
 
 function spawn_meteorite() {
-    size=Math.random()
-    hp=0
+    let size=Math.random()
+    let hp
     if (size <= 0.2) {
         hp=4
         size = meteorite_base.width()*2
@@ -240,15 +242,15 @@ function spawn_meteorite() {
     meteoritediv.append($(cloneMeteor()).css({
         top: -size,
         left: Math.round(Math.random()*(ga_width-size)),
-        width: size, //63 sem rossz tbh
+        width: size,
         height: size
     }).attr({hp:hp}))
 }
 
 function move_meteorites() {
     $(".meteorite").each(function () {
-        rotation=Math.random()-0.5
-        sign=0
+        let rotation=Math.random()-0.5
+        let sign
         if (rotation<=0) {
             rotation=rotation*180*2+300
             sign="-"
@@ -262,5 +264,14 @@ function move_meteorites() {
         if (parseInt($(this).css("top")) >= ga_height) {
             $(this).remove()
         }
+    })
+}
+
+function pause_game() {
+    $(".meteorite").each(function () {
+        $(this).stop()
+    })
+    $(".projectile").each(function () {
+        $(this).stop()
     })
 }
