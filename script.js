@@ -6,10 +6,11 @@ let shotsdiv, meteoritediv
 let projectile_base
 let meteorite_base
 let proj_width, proj_height, proj_top
-let seconds_elapsed
+let seconds_elapsed=0
 let ship_shielded=false
 let ship_hit=false
 let base_ship_height, base_ship_width
+let spawning_meteorites
 
 $(function () {
     console.log("Site ready");
@@ -83,7 +84,7 @@ $(function () {
 
     meteorite_base.on('load', function () {
         init_meteorite();
-        let spawning_meteorites=setInterval(spawn_meteorite, 2000) //should make it with random
+        spawning_meteorites=setTimeout(spawn_meteorite, 2000) //should make it with random
 
     })
 
@@ -204,20 +205,24 @@ function detect_spaceshit_hit() {
             parseInt($(player).css("top"))+player.height()/4*2.5
         ]
         if (calculate_distance(meteoritepos, shippos) <= player.width()/3*2) {
-            console.log("Ship hit")
-            ship_shielded=true
-            ship_hit=true
-            $(player).attr({src: "spaceshiphit.gif"})
-            setTimeout(function () {
-                $(player).attr({src: "spaceshipshielded.png"})
-                ship_hit=false
-            }, 1000)
-            setTimeout(function () {
-                $(player).attr({src: "spaceship.png"})
-                ship_shielded=false
-            }, 4000)
+            register_ship_hit()
         }
     })
+}
+
+function register_ship_hit() {
+    console.log("Ship hit")
+    ship_shielded=true
+    ship_hit=true
+    $(player).attr({src: "spaceshiphit.gif"})
+    setTimeout(function () {
+        $(player).attr({src: "spaceshipshielded.png"})
+        ship_hit=false
+    }, 1000)
+    setTimeout(function () {
+        $(player).attr({src: "spaceship.png"})
+        ship_shielded=false
+    }, 4000)
 }
 
 function spawn_meteorite() {
@@ -245,12 +250,15 @@ function spawn_meteorite() {
         width: size,
         height: size
     }).attr({hp:hp}))
+    spawning_meteorites=setTimeout(spawn_meteorite,2000-Math.min(220,seconds_elapsed)*4)
+
 }
 
 function move_meteorites() {
     $(".meteorite").each(function () {
         let rotation=Math.random()-0.5
         let sign
+        let falltime=15000-Math.min(seconds_elapsed, 220)*50
         if (rotation<=0) {
             rotation=rotation*180*2+300
             sign="-"
@@ -260,7 +268,7 @@ function move_meteorites() {
 
         }
 
-        $(this).animate({top: ga_height+10, rotate: sign+rotation+"deg"},5000, "linear")
+        $(this).animate({top: ga_height+10, rotate: sign+rotation+"deg"},falltime, "linear")
         if (parseInt($(this).css("top")) >= ga_height) {
             $(this).remove()
         }
