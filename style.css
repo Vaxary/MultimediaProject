@@ -9,12 +9,15 @@ body {
 
 #player {
     position: absolute;
+    z-index: 0;
 }
 .projectile {
     position: absolute;
+    z-index: 0;
 }
 .meteorite {
     position: absolute;
+    z-index: 1;
 }
 
 #gamespace {

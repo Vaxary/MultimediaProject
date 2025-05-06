@@ -6,6 +6,7 @@ let shootInterval=0
 let shotsdiv, meteoritediv
 let projectile_base
 let proj_width, proj_height
+let seconds_elapsed
 
 $(function () {
     console.log("Site ready");
@@ -20,9 +21,8 @@ $(function () {
     ga_width = gamespace.width();
     ga_height = gamespace.height();
 
-    gamespace.append(player)
-
     player.on('load', function () {
+        player.appendTo(gamespace)
         init_player();
         projectile_base.on('load', function () {
 
@@ -30,8 +30,14 @@ $(function () {
             $(window).on('mousedown', function (event) {
                 if (event.which===1) {
                     if (shootInterval===0) {
-                        shootInterval=setInterval(shoot_projectile, 75)
-                        $(window).trigger('mousedown')
+                        shootInterval=setInterval(shoot_projectile, 125)
+                    }
+                }
+            });
+            $(window).on('keydown', function (event) {
+                if (parseInt(event.keyCode)===32) {
+                    if (shootInterval===0) {
+                        shootInterval=setInterval(shoot_projectile, 125)
                     }
                 }
             });
@@ -43,10 +49,22 @@ $(function () {
                     shootInterval = 0
                 }
             });
+            $(window).on('keyup ', function (event) {
+                if (event.keyCode===32) {
+                    if (shootInterval !== 0) {
+                        clearInterval(shootInterval)
+                    }
+                    shootInterval = 0
+                }
+            });
             console.log("Projectile ready")
         })
         game_logic=setInterval(game_logic, 1)
     })
+
+    game_timer=setInterval( function () {
+        seconds_elapsed+=0.5
+    }, 500)
 
 
     meteorite_base.on('load', function () {
@@ -91,7 +109,6 @@ function init_projectile() {
     proj_width=projectile_base.width();
     proj_height=projectile_base.height();
     $(projectile_base.css({top: ga_height-50-player_height-30}))
-    console.log("Projectile ready")
 }
 
 function move_projectiles() {
@@ -169,7 +186,6 @@ function spawn_meteorite() {
         hp=12
         size = meteorite_base.width()*4
     }
-    console.log(size)
     meteoritediv.append($(cloneMeteor()).css({
         top: -size,
         left: Math.round(Math.random()*(ga_width-size)),
@@ -191,7 +207,7 @@ function move_meteorites() {
 
         }
 
-        $(this).animate({top: ga_height+10, rotate: sign+rotation+"deg"},15000, "linear")
+        $(this).animate({top: ga_height+10, rotate: sign+rotation+"deg"},5000, "linear")
         if (parseInt($(this).css("top")) >= ga_height) {
             $(this).remove()
         }
