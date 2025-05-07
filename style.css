@@ -19,9 +19,18 @@ body {
     position: absolute;
     z-index: 1;
 }
+.explosion {
+    position: absolute;
+    z-index: 1;
+}
+
+#pausebutton {
+    z-index: 2;
+    position: absolute;
+}
 
 #gamespace {
-    background-image: url("spacebackground.png");
+    background-image: url("assets/spacebackground.png");
     -webkit-user-select: none;
     -moz-user-select: none;
     user-select: none;
