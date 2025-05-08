@@ -1,16 +1,22 @@
-import {setProjHeight, setProjWidth, setProjTop} from "./projectile.js";
-import {gamespace_height} from "./values.js";
-import {ship, ship_height, ship_width} from "./ship.js";
+import {getShip, getShipHeight, getShipWidth} from "./ship.js";
+import {getGameSpaceHeight} from "./gamelogic.js";
+import {
+    getProjectileBase,
+    getProjHeight,
+    getProjTop,
+    getProjWidth,
+    setProjHeight,
+    setProjTop,
+    setProjWidth
+} from "./projectile.js";
 import {
     addAsteroidStateFrame,
-    addDestroyesAsteroidFrame,
-    asteroid_base,
-    destroyed_asteroid_frames,
-    replaceDestroyesAsteroidFrame
+    addDestroyedAsteroidFrame,
+    getAsteroidBase, getDestroyedAsteroidStateFrame,
+    replaceDestroyedAsteroidFrame
 } from "./asteroid.js";
 
-
-function initialization() {
+export function initialization() {
     init_player()
     init_projectile()
     init_meteorite()
@@ -19,46 +25,46 @@ function initialization() {
 function init_projectile() {
     setProjWidth(8);
     setProjHeight(24);
-    setProjTop(gamespace_height-ship_height-50);
-    $(projectile_base).css({
-        top: proj_top,
-        height: proj_height,
-        width: proj_width})
+    setProjTop(getGameSpaceHeight()-getShipHeight()-50);
+    $(getProjectileBase()).css({
+        top: getProjTop(),
+        height: getProjHeight(),
+        width: getProjWidth()})
 }
 
 function init_player() {
-    $(ship).attr({hp:3})
-    $(ship).css({
-        height: ship_height,
-        width: ship_width
+    $(getShip()).attr({hp:3})
+    $(getShip()).css({
+        height: getShipHeight(),
+        width: getShipWidth()
     });
-    $(ship).css({top:gamespace_height-ship_height-50});
+    $(getShip()).css({top:getGameSpaceHeight()-getShipHeight()-50});
 }
 
 function init_meteorite() {
-    $(asteroid_base).css({
-        top: -21,
+    $(getAsteroidBase()).css({
+        top: -100,
         left: 100,
         width: 21, //63 sem rossz tbh
         height: 21
     })
-    for (let i=1; i <= 5; i++) {
+    for (let i=1; i <= 6; i++) {
         let frame=new Image()
-        frame.src="assets/asteroid"+(i+1)+".png"
+        frame.src="../assets/asteroid"+i+".png"
         addAsteroidStateFrame(frame)
     }
 
     for (let i=1; i <= 8; i++) {
         let frame=new Image()
-        frame.src="assets/asteroid_destroyed"+(i+1)+".png"
-        addDestroyesAsteroidFrame(frame)
+        frame.src="../assets/asteroid_destroyed"+i+".png"
+        addDestroyedAsteroidFrame(frame)
     }
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[0],50],0)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[1],40],1)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[2],30],2)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[3],30],3)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[4],30],4)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[5],40],5)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[6],40],6)
-    replaceDestroyesAsteroidFrame([destroyed_asteroid_frames[7],50],7)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(0),50],0)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(1),40],1)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(2),30],2)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(3),30],3)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(4),30],4)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(5),40],5)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(6),40],6)
+    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(7),50],7)
 }

@@ -1,23 +1,40 @@
-export let asteroid_base, asteroid_states=[], destroyed_asteroid_frames=[]
+self.destroyed_asteroid_frames=[]
+self.asteroid_states=[]
 
-export function cloneAsterpod(){
-    return $(asteroid_base)[0].cloneNode(true)
+export function cloneAsteroid(){
+    return $(self.asteroid_base)[0].cloneNode(true)
 }
 
 export function setAsteroidBase(asteroid_base) {
     self.asteroid_base=asteroid_base
 }
 
+export function getAsteroidBase() {
+    return self.asteroid_base
+}
+
 export function addAsteroidStateFrame(asteroidframe) {
     asteroid_states.push(asteroidframe)
 }
 
-export function replaceDestroyesAsteroidFrame(asteroidframe, index) {
-    destroyed_asteroid_frames[index]=asteroidframe
+export function getAsteroidStateFrame(i) {
+    return asteroid_states[i]
 }
 
-export function addDestroyesAsteroidFrame(asteroidframe) {
+export function replaceAsteroidStateFrame(asteroidframe, i) {
+    asteroid_states[i]=asteroidframe
+}
+
+export function addDestroyedAsteroidFrame(asteroidframe) {
     destroyed_asteroid_frames.push(asteroidframe)
+}
+
+export function getDestroyedAsteroidStateFrame(i) {
+    return destroyed_asteroid_frames[i]
+}
+
+export function replaceDestroyedAsteroidFrame(asteroidframe, i) {
+    destroyed_asteroid_frames[i]=asteroidframe
 }
 
 export function update_shot_asteroid(asteroid, projectile) {
