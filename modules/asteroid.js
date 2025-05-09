@@ -1,4 +1,5 @@
-import {getGameSpaceWidth} from "./gamelogic.js";
+import {getGameSpaceWidth, updateScoreLabel} from "./gamelogic.js";
+import {getShip} from "./ship.js";
 
 self.destroyed_asteroid_frames=[]
 self.asteroid_states=[]
@@ -48,7 +49,6 @@ export class Asteroid {
         })
         this._fallspeed = fallspeed;
         this._rotationspeed = rotationspeed;
-        //console.log(this.size+" "+this._fallspeed+" "+this._rotationspeed+" "+this._img)
     }
 
 
@@ -88,6 +88,8 @@ export class Asteroid {
 
     updateAsteroidState() {
         if (this.hp===0) {
+            getShip().addScore(this.score)
+            updateScoreLabel()
             $(this.$asteroid).removeClass("asteroid")
             $(this.$asteroid).addClass("explosion")
             getAsteroids().splice(this.index, 1)

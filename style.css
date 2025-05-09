@@ -24,8 +24,57 @@ body {
     z-index: 1;
 }
 
+.shiphpicon {
+    position: absolute;
+    width: 32px;
+    height: 28px;
+    z-index: 4;
+}
+
+#shiphpbox {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    z-index: 4;
+}
+
+#planethpbox {
+    position: absolute;
+    right: 0;
+    top: 100px;
+    z-index: 4;
+}
+
 #pausebutton {
-    z-index: 2;
+    top: 10px;
+    left: 10px;
+    font-weight: bold;
+    width: 60px;
+    height: 60px;
+    z-index: 4;
+    position: absolute;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 40%;
+    cursor: pointer;
+}
+
+#pausescreen {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    background-color: rgba(150, 150, 150, 0.3);
+    backdrop-filter: blur(3px);
+}
+
+#scorelabel {
+    right: 10px;
+    color: white;
+    font-weight: bold;
+    font-size: 20pt;
+    z-index: 4;
     position: absolute;
 }
 

@@ -1,15 +1,6 @@
-self.shootInterval=0
 
 export function cloneProjectile() {
     return $(self.projectile_base)[0].cloneNode(true)
-}
-
-export function setShootInterval(shootInterval) {
-    self.shootInterval = shootInterval
-}
-
-export function getShootInterval() {
-    return self.shootInterval
 }
 
 export function setProjectileBase(projectile_base) {

@@ -4,21 +4,28 @@ import {
     getAsteroids,
     getDestroyedAsteroids
 } from "./asteroid.js";
-import {add_ship_eventhandlers, getShip, getShipWidth, isShipShielded, register_ship_hit} from "./ship.js";
+import {
+    getShip,
+    getShipHpIndicatorIcon,
+    getShipHpIndicatorImg
+} from "./ship.js";
 self.seconds_elapsed=0
 self.time_since_last_spawn=0
+self.pause_button_img=[]
 self.paused=false
+
 
 export function startGameLogicLoop() {
     self.game_logic_loop=setInterval(function () {
-        move_projectiles()
+        moveProjectiles()
         moveAsteroids()
         rotateDestroyedAsteroids()
         detect_projectile_hit()
-        if (!isShipShielded()) {
+        if (!getShip.shielded) {
             detect_spaceshit_hit()
         }
         updateAnimationTimes(1)
+        addTimeSinceLastAsteroidSpawn(1)
     },1)
 }
 
@@ -29,7 +36,6 @@ export function clearGameLogicLoop() {
 export function startSecondCounter() {
     self.second_counter=setInterval(function () {
         addSecondsElapsed(1)
-        addTimeSinceLastAsteroidSpawn(1)
     },1000)
 }
 
@@ -90,6 +96,26 @@ export function getAsteroidDiv() {
     return self.$asteroiddiv
 }
 
+export function setShipHpBox($ship_hpbox) {
+    self.$ship_hpbox=$ship_hpbox
+}
+
+export function getShipHpBox() {
+    return self.$ship_hpbox
+}
+
+export function updateShipHpBox() {
+    getShipHpIndicatorIcon(getShip().hp).attr({src:getShipHpIndicatorImg(0).src})
+}
+
+export function setPlanetHpBox($planet_hpbox) {
+    self.$planet_hpbox=$planet_hpbox
+}
+
+export function getPlanetHpBox() {
+    return self.$planet_hpbox
+}
+
 export function setGameSpace($gamespace) {
     self.$gamespace = $gamespace
     self.gamespace_width=$gamespace.width()
@@ -116,22 +142,46 @@ export function getGameSpaceWidth() {
     return self.gamespace_width
 }
 
+export function setPauseButton($pause_button) {
+    self.$pause_button=$pause_button
+}
+
+export function getPauseButton() {
+    return self.$pause_button
+}
+
+export function addPauseButtonImg(pause_button_img) {
+    self.pause_button_img.push(pause_button_img)
+}
+
+export function getPauseButtonImgs() {
+    return self.pause_button_img
+}
+
+export function setScoreLabel($score_label) {
+    self.$score_label=$score_label
+}
+
+export function getScoreLabel() {
+    return self.$score_label
+}
+
+export function updateScoreLabel() {
+    self.$score_label.text("Score: "+getShip().score)
+}
+
+export function setPauseScreen($pause_screen) {
+    self.$pause_screen=$pause_screen
+}
+
+export function getPauseScreen() {
+    return self.$pause_screen
+}
+
 
 //actual functions
-export function calculate_distance(pos1, pos2) {
-    return Math.pow(pos1[0]-pos2[0],2)+Math.pow(pos1[1]-pos2[1],2)
-}
-
-export function move_player(e) {
-    let rel_mouse_pos_x = Math.ceil(e.clientX - self.$gamespace.offset().left - getShipWidth()/2);
-    //console.log(getShipWidth())
-    rel_mouse_pos_x=Math.min(Math.max(rel_mouse_pos_x,-getShipWidth()/2+20),self.gamespace_width-getShipWidth()/2-20);
-    $(getShip()).css({
-        left:rel_mouse_pos_x
-    });
-}
-
-function move_projectiles() {
+//moving stuff
+function moveProjectiles() {
     $(".projectile").each(function () {
         $(this).animate({
             top: "-=10"
@@ -152,6 +202,7 @@ function moveAsteroids() {
             $(current_asteroid.$asteroid).remove()
             getAsteroids().splice(current_asteroid.index, 1)
             current_asteroid.updateAsteroidArrayIndexes()
+            getShip().registerPlanetHit()
         }
     })
 }
@@ -163,11 +214,11 @@ function rotateDestroyedAsteroids() {
     })
 }
 
-export function updateAnimationTimes(time) {
-    getDestroyedAsteroids().forEach(asteroid=>{
-        asteroid.updateAsteroidDestroyedCurrentAnimtime(time)
-    })
+//hit detection
+export function calculate_distance(pos1, pos2) {
+    return Math.pow(pos1[0]-pos2[0],2)+Math.pow(pos1[1]-pos2[1],2)
 }
+
 
 function detect_projectile_hit() {
     $(".projectile").each( function (p_index, current_projectile) {
@@ -196,20 +247,25 @@ function detect_projectile_hit() {
 }
 
 function detect_spaceshit_hit() {
-    $(".meteorite").each( function () {
-        let meteoritepos=[
-            parseInt($(this).css("left"))+parseInt($(this).css("width"))/2,
-            parseInt($(this).css("top"))+parseInt($(this).css("height"))/2
-        ]
-        let shippos=[
-            parseInt($(getShip()).css("left"))+getShip().width()/2,
-            parseInt($(getShip()).css("top"))+getShip().height()/4*2.5
-        ]
-        if (calculate_distance(meteoritepos, shippos) <= Math.pow(getShip().width()/3*2,2)) {
-            register_ship_hit()
-        }
-    })
+    if (!getShip().shielded) {
+        getAsteroids().forEach(asteroid=>{
+            let asteroidpos=[
+                parseInt($(asteroid.$asteroid).css("left"))+parseInt($(asteroid.$asteroid).css("width"))/2,
+                parseInt($(asteroid.$asteroid).css("top"))+parseInt($(asteroid.$asteroid).css("height"))/2
+            ]
+            let shippos=[
+                getShip().pos+getShip().width/2,
+                getShip().top+getShip().height/4*2.5
+            ]
+            if (calculate_distance(asteroidpos, shippos) <= Math.pow(getShip().width/3*2,2)) {
+                getShip().register_ship_hit()
+            }
+        })
+    }
+
 }
+
+//asteroid functions
 
 export function spawn_asteroid() {
     let rotation=Math.random()-0.5
@@ -232,6 +288,17 @@ export function spawn_asteroid() {
     setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,getSecondsElapsed())*4))
 }
 
+export function updateAnimationTimes(time) {
+    getDestroyedAsteroids().forEach(asteroid=>{
+        asteroid.updateAsteroidDestroyedCurrentAnimtime(time)
+    })
+    if (getShip().shielded) {
+        getShip().addAnimationTime(time)
+    }
+}
+
+//pause unpause
+
 export function pauseGame() {
     clearTimeout(getAsteroidSpawner())
     clearGameLogicLoop()
@@ -246,15 +313,27 @@ export function pauseGame() {
     $(".projectile").each(function () {
         $(this).stop(true)
     })
-    $(window).off("mousemove mousedown mouseup keyup")
+    clearTimeout(getShip().animtimeout)
+    getShip().disableShipEventhandlers()
+    getPauseScreen().show()
+    $(getPauseButton()).css({
+        "background-image": "url("+getPauseButtonImgs()[1].src+")"
+    })
 }
 
 export function unpauseGame() {
     setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,seconds_elapsed)*4-time_since_last_spawn))
     startGameLogicLoop()
     startSecondCounter()
-    add_ship_eventhandlers()
+    getShip().enableShipEventhandlers()
     getDestroyedAsteroids().forEach(element => {
         element.continueAsteroidDestroyAnimation()
+    })
+    if (getShip().shielded) {
+        getShip().continueShipHitAnimation()
+    }
+    getPauseScreen().hide()
+    $(getPauseButton()).css({
+        "background-image": "url("+getPauseButtonImgs()[0].src+")"
     })
 }

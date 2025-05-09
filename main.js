@@ -5,31 +5,60 @@ import {
     setAsteroidDiv,
     spawn_asteroid,
     setAsteroidSpawner,
-    startSecondCounter, startGameLogicLoop, pauseGame, unpauseGame, isPaused, setPaused
+    startSecondCounter,
+    startGameLogicLoop,
+    pauseGame,
+    unpauseGame,
+    isPaused,
+    setPaused,
+    setScoreLabel,
+    setPauseButton,
+    getPauseButton, setPauseScreen, getPauseScreen, setShipHpBox, setPlanetHpBox
 } from "./modules/gamelogic.js";
 import {
-    add_ship_eventhandlers,
-    getShip, setShip,
-    isShipLoaded, setShipLoaded,
-    setShipHeight, setShipWidth
+    getShip,
+    initializeShip
 } from "./modules/ship.js";
 import {initialization} from "./modules/initialization.js";
 import {setAsteroidBase} from "./modules/asteroid.js";
 import {setProjectileBase} from "./modules/projectile.js";
 
-let pause_button
-
 $(function () {
     console.log("Site ready");
     setGameSpace($("#gamespace"))
-    setShip($("<img src='assets/spaceship.png' alt='player spaceship' id='player'>"))
     setShotsDiv($("#shots"))
     setAsteroidDiv($("#asteroids"))
+    setScoreLabel($("#scorelabel"))
+    setPauseButton($("#pausebutton"))
+    setPauseScreen($("#pausescreen"))
+    setShipHpBox($("#shiphpbox"))
+    setPlanetHpBox($("#planethpbox"))
+    getPauseScreen().hide()
     setProjectileBase($("<img src='assets/spaceshipprojectile.png' alt='player spaceship projectile' class='projectile'>"))
     setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
-    pause_button=$("#pausebutton")
 
-    $(pause_button).on('click', function () {
+    initializeShip()
+    $(getShip().$ship).on('load', function () {
+        getShip().updateSizeAndPos()
+        getShip().$ship.show()
+
+
+        startGameLogicLoop()
+        startSecondCounter()
+
+        setAsteroidSpawner(setTimeout(spawn_asteroid, 2000))
+
+        getShip().loaded=true
+        console.log(getShip().loaded)
+        $(getShip().$ship).off('load')
+        initialization()
+        console.log("Player ready")
+    })
+
+
+
+
+    $(getPauseButton()).on('click', function () {
         if (!isPaused()) {
             setPaused(true)
             pauseGame()
@@ -39,25 +68,10 @@ $(function () {
         }
     })
 
-    $(getShip()).on('load', function () {
-        if (!isShipLoaded()) {
-            getShip().appendTo(getGameSpace())
-            setShipHeight($(getShip()).height()*4)
-            setShipWidth($(getShip()).width()*4)
-            initialization()
 
-            startGameLogicLoop()
-            startSecondCounter()
-
-            setAsteroidSpawner(setTimeout(spawn_asteroid, 2000))
-
-            setShipLoaded(true)
-            console.log("Player ready")
-        }
-    })
 
     projectile_base.on('load', function () {
-        add_ship_eventhandlers()
+        getShip().enableShipEventhandlers()
         console.log("Projectile ready")
     })
 
