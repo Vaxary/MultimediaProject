@@ -7,10 +7,10 @@ import {
 } from "./ship.js";
 import {
     addPauseButtonImg,
-    getGameSpaceHeight,
+    getGameSpaceHeight, getGameSpaceWidth,
     getPauseButton,
-    getPauseButtonImgs,
-    getShipHpBox
+    getPauseButtonImg, getRestartButton, getRestartLabel, getRestartOverlay,
+    getShipHpBox, setAsteroidSpawner, spawn_asteroid, startGameLogicLoop, startSecondCounter
 } from "./gamelogic.js";
 import {
     getProjectileBase,
@@ -33,7 +33,23 @@ export function initialization() {
     init_meteorite()
     initShipStates()
     initPauseButton()
+    initRestartOverlay()
     initShipHpBox()
+}
+
+export function loadShip() {
+    getShip().updateSizeAndPos()
+    getShip().$ship.show()
+
+    $(getShip().$ship).off('load')
+}
+
+export function loadShipFirst() {
+    loadShip()
+    startGameLogicLoop()
+    startSecondCounter()
+    setAsteroidSpawner(setTimeout(spawn_asteroid, 2000))
+    initialization()
 }
 
 function initShipHpBox() {
@@ -59,9 +75,32 @@ function initPauseButton() {
     let pause_button_play=new Image()
     pause_button_play.src = "../assets/pausebutton2.png"
     addPauseButtonImg(pause_button_play)
-    console.log(getPauseButtonImgs()[0].src)
     $(getPauseButton()).css({
-        "background-image": "url("+getPauseButtonImgs()[0].src+")"
+        scale: 1,
+        "background-image": "url("+getPauseButtonImg(0).src+")"
+    })
+}
+
+function initRestartOverlay() {
+    getRestartOverlay().hide()
+    initRestartButton()
+    initRestartLabel()
+}
+
+function initRestartButton() {
+    let restart_button=new Image()
+    restart_button.src = "../assets/restartbutton.png"
+    $(getRestartButton()).css({
+        "background-image": "url("+restart_button.src+")",
+        scale: 1,
+        left: getGameSpaceWidth()/2-30,
+        top: getGameSpaceHeight()/2-30
+    })
+}
+
+function initRestartLabel() {
+    $(getRestartLabel()).css({
+        top: getGameSpaceHeight()/2-75
     })
 }
 
@@ -69,7 +108,6 @@ function init_projectile() {
     setProjWidth(8);
     setProjHeight(24);
     setProjTop(getGameSpaceHeight()-getShip().height-50);
-    console.log(getGameSpaceHeight()-getShip().height-50)
     $(getProjectileBase()).css({
         top: getProjTop(),
         height: getProjHeight(),

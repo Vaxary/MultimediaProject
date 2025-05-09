@@ -7,8 +7,9 @@ import {
 import {
     getShip,
     getShipHpIndicatorIcon,
-    getShipHpIndicatorImg
+    getShipHpIndicatorImg, initializeShip
 } from "./ship.js";
+import {loadShip} from "./initialization.js";
 self.seconds_elapsed=0
 self.time_since_last_spawn=0
 self.pause_button_img=[]
@@ -75,12 +76,12 @@ export function addTimeSinceLastAsteroidSpawn(time) {
     self.time_since_last_spawn+=time
 }
 
-export function setAsteroidSpawner(asteroide_spawner) {
-    self.asteroide_spawner=asteroide_spawner
+export function setAsteroidSpawner(asteroid_spawner) {
+    self.asteroid_spawner=asteroid_spawner
 }
 
 export function getAsteroidSpawner() {
-    return asteroide_spawner
+    return asteroid_spawner
 }
 
 export function setShotsDiv($shotsdiv) {
@@ -89,6 +90,7 @@ export function setShotsDiv($shotsdiv) {
 export function getShotsDiv() {
     return self.$shotsdiv
 }
+
 export function setAsteroidDiv($asteroiddiv) {
     self.$asteroiddiv=$asteroiddiv
 }
@@ -105,7 +107,13 @@ export function getShipHpBox() {
 }
 
 export function updateShipHpBox() {
-    getShipHpIndicatorIcon(getShip().hp).attr({src:getShipHpIndicatorImg(0).src})
+    getShipHpIndicatorIcon(getShip().hp).attr({src:getShipHpIndicatorImg(0).src}).animate({scale: 1.2},75).animate({scale: 1},75)
+}
+
+export function refillShipHpBox() {
+    for (let i = 0; i < getShip().hp; i++) {
+        getShipHpIndicatorIcon(i).attr({src:getShipHpIndicatorImg(1).src})
+    }
 }
 
 export function setPlanetHpBox($planet_hpbox) {
@@ -150,12 +158,36 @@ export function getPauseButton() {
     return self.$pause_button
 }
 
+export function setRestartOverlay($restart_overlay) {
+    self.$restart_overlay=$restart_overlay
+}
+
+export function getRestartOverlay() {
+    return $restart_overlay
+}
+
+export function setRestartButton($restart_button) {
+    self.$restart_button=$restart_button
+}
+
+export function getRestartButton() {
+    return self.$restart_button
+}
+
+export function setRestartLabel($restart_label) {
+    return self.$restart_label=$restart_label
+}
+
+export function getRestartLabel() {
+    return self.$restart_label
+}
+
 export function addPauseButtonImg(pause_button_img) {
     self.pause_button_img.push(pause_button_img)
 }
 
-export function getPauseButtonImgs() {
-    return self.pause_button_img
+export function getPauseButtonImg(i) {
+    return self.pause_button_img[i]
 }
 
 export function setScoreLabel($score_label) {
@@ -317,7 +349,7 @@ export function pauseGame() {
     getShip().disableShipEventhandlers()
     getPauseScreen().show()
     $(getPauseButton()).css({
-        "background-image": "url("+getPauseButtonImgs()[1].src+")"
+        "background-image": "url("+getPauseButtonImg(1).src+")"
     })
 }
 
@@ -334,6 +366,55 @@ export function unpauseGame() {
     }
     getPauseScreen().hide()
     $(getPauseButton()).css({
-        "background-image": "url("+getPauseButtonImgs()[0].src+")"
+        "background-image": "url("+getPauseButtonImg(0).src+")",
     })
+}
+
+export function togglePause() {
+    if (!isPaused()) {
+        setPaused(true)
+        pauseGame()
+    } else {
+        setPaused(false)
+        unpauseGame()
+    }
+    $(getPauseButton()).stop(true)
+    $(getPauseButton()).animate({scale: 1.2},75).animate({scale: 1},75)
+}
+
+export function startGame() {
+
+}
+
+export function restartGame() {
+    $(getRestartOverlay()).hide()
+    clearGameLogicLoop()
+    clearSecondCounter()
+    clearTimeout(getAsteroidSpawner())
+    setSecondsElapsed(0)
+    setTimeSinceLastAsteroidSpawn(0)
+    initializeShip()
+    refillShipHpBox()
+    updateScoreLabel()
+
+    getAsteroids().forEach(element => {
+        $(element.$asteroid).remove()
+    })
+    getAsteroids().splice(0,getAsteroids().length)
+
+    getDestroyedAsteroids().forEach(element => {
+        clearTimeout(element.animtimeout)
+        $(element.$asteroid).remove()
+    })
+    getDestroyedAsteroids().splice(0,getDestroyedAsteroids().length)
+
+    $(".projectile").each(function () {
+        $(this).remove()
+    })
+
+    $(getShip().$ship).on('load', loadShip)
+    $(getPauseButton()).on("click", togglePause).show()
+    togglePause()
+
+    //getPauseScreen().show()
 }

@@ -97,7 +97,7 @@ export class Asteroid {
             this.index=getDestroyedAsteroids().length
             getDestroyedAsteroids().push(this)
 
-            this.startAsteroidDestroyAnimation(0)
+            this.startAsteroidDestroyAnimation()
         } else if (this.hp<=2) {
             $(this.$asteroid).attr({
                 src: getAsteroidStateFrame(5).src
@@ -125,7 +125,7 @@ export class Asteroid {
         }
     }
 
-    startAsteroidDestroyAnimation(fromframe) {
+    startAsteroidDestroyAnimation(fromframe=0) {
         let current=this
         current.current_destroyed_animframe=fromframe
         current.current_destroyed_animtime=0

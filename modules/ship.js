@@ -1,6 +1,6 @@
 import {
-    getGameSpace, getGameSpaceHeight, getPauseButton,
-    getShotsDiv, pauseGame, updateShipHpBox
+    getGameSpace, getGameSpaceHeight, getPauseButton, getRestartButton, getRestartOverlay,
+    getShotsDiv, restartGame, togglePause, updateShipHpBox
 } from "./gamelogic.js";
 import {cloneProjectile, getProjWidth} from "./projectile.js";
 
@@ -11,14 +11,12 @@ self.ship_hp_indicator_icons=[]
 export class Ship {
     constructor() {
         this.$ship=$("<img src='../assets/spaceship.png' alt='player spaceship' id='player'>")
-        console.log(this.$ship)
-        this.hp=1
-        this.planethp=10
+        this.hp=3
+        //this.planethp=10
         this.score=0
         this.shielded=false
         this.hit=false
         this.pos=0
-        this.loaded=false
         this.width=0
         this.height=0
         this.top=0
@@ -86,7 +84,7 @@ export class Ship {
         this.animframe=fromframe
         this.animtime=0
         if (fromframe < 10) {
-            this.$ship.attr({src: self.ship_states[fromframe%2].src})
+            this.$ship.attr({src: self.ship_states[(fromframe+1)%2].src})
             this.animtimeout=setTimeout(function () {
                 getShip().startShipHitAnimation(fromframe+1)
             }, 100)
@@ -102,7 +100,7 @@ export class Ship {
 
     continueShipHitAnimation() {
         if (this.animframe < 10) {
-            this.$ship.attr({src: self.ship_states[this.animframe%2].src})
+            this.$ship.attr({src: self.ship_states[(this.animframe+1)%2].src})
             this.animtimeout=setTimeout(function () {
                 getShip().startShipHitAnimation(getShip().animframe+1)
             }, 100-getShip().animtime)
@@ -124,11 +122,7 @@ export class Ship {
             }, self.destroyed_ship_frames[fromframe][1])
         } else {
             this.$ship.attr({src: self.destroyed_ship_frames[fromframe][0].src})
-            setTimeout(function () {
-                getShip().$ship.remove()
-                pauseGame()
-
-            }, self.destroyed_ship_frames[fromframe][1])
+            setTimeout(getShip().destroyShip, self.destroyed_ship_frames[fromframe][1])
         }
     }
 
@@ -144,8 +138,19 @@ export class Ship {
         }
     }
 
+    destroyShip() {
+        getShip().$ship.remove()
+        togglePause()
+        $(getPauseButton()).off("click")
+        $(getRestartOverlay()).show()
+        $(getRestartButton()).on("click", function () {
+            $(getRestartButton()).animate({scale: 1.2}, 75).animate({scale: 1}, 75)
+            $(getRestartButton()).off("click")
+            setTimeout(restartGame, 150)
+        })
+    }
+
     register_ship_hit() {
-        console.log("Ship hit")
         this.shielded=true
         this.hit=true
         this.hp-=1

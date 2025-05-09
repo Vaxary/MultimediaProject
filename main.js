@@ -3,34 +3,39 @@ import {
     getGameSpace,
     setShotsDiv,
     setAsteroidDiv,
-    spawn_asteroid,
-    setAsteroidSpawner,
-    startSecondCounter,
-    startGameLogicLoop,
     pauseGame,
-    unpauseGame,
     isPaused,
     setPaused,
     setScoreLabel,
     setPauseButton,
-    getPauseButton, setPauseScreen, getPauseScreen, setShipHpBox, setPlanetHpBox
+    getPauseButton,
+    setPauseScreen,
+    getPauseScreen,
+    setShipHpBox,
+    setPlanetHpBox,
+    setRestartButton,
+    setRestartLabel,
+    setRestartOverlay, togglePause
 } from "./modules/gamelogic.js";
 import {
     getShip,
     initializeShip
 } from "./modules/ship.js";
-import {initialization} from "./modules/initialization.js";
+import {loadShipFirst} from "./modules/initialization.js";
 import {setAsteroidBase} from "./modules/asteroid.js";
 import {setProjectileBase} from "./modules/projectile.js";
 
 $(function () {
-    console.log("Site ready");
     setGameSpace($("#gamespace"))
     setShotsDiv($("#shots"))
     setAsteroidDiv($("#asteroids"))
     setScoreLabel($("#scorelabel"))
     setPauseButton($("#pausebutton"))
     setPauseScreen($("#pausescreen"))
+
+    setRestartOverlay($("#restartoverlay"))
+    setRestartButton($("#restartbutton"))
+    setRestartLabel($("#restartlabel"))
     setShipHpBox($("#shiphpbox"))
     setPlanetHpBox($("#planethpbox"))
     getPauseScreen().hide()
@@ -38,41 +43,17 @@ $(function () {
     setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
 
     initializeShip()
-    $(getShip().$ship).on('load', function () {
-        getShip().updateSizeAndPos()
-        getShip().$ship.show()
-
-
-        startGameLogicLoop()
-        startSecondCounter()
-
-        setAsteroidSpawner(setTimeout(spawn_asteroid, 2000))
-
-        getShip().loaded=true
-        console.log(getShip().loaded)
-        $(getShip().$ship).off('load')
-        initialization()
-        console.log("Player ready")
-    })
-
-
-
+    $(getShip().$ship).on('load', loadShipFirst)
 
     $(getPauseButton()).on('click', function () {
-        if (!isPaused()) {
-            setPaused(true)
-            pauseGame()
-        } else {
-            setPaused(false)
-            unpauseGame()
-        }
+        togglePause()
     })
 
 
 
     projectile_base.on('load', function () {
         getShip().enableShipEventhandlers()
-        console.log("Projectile ready")
+        projectile_base.off('load')
     })
 
     $(getGameSpace()).on('dragstart', function(event) { event.preventDefault(); });
