@@ -1,14 +1,48 @@
-import {cloneAsteroid, getAsteroidBase, getAsteroidStateFrame, update_shot_asteroid} from "./asteroid.js";
+import {
+    addAsteroid,
+    Asteroid,
+    getAsteroids,
+    getDestroyedAsteroids
+} from "./asteroid.js";
 import {add_ship_eventhandlers, getShip, getShipWidth, isShipShielded, register_ship_hit} from "./ship.js";
 self.seconds_elapsed=0
 self.time_since_last_spawn=0
+self.paused=false
 
-export function setGameLogicLoop(game_logic_loop) {
-    self.game_logic_loop=game_logic_loop
+export function startGameLogicLoop() {
+    self.game_logic_loop=setInterval(function () {
+        move_projectiles()
+        moveAsteroids()
+        rotateDestroyedAsteroids()
+        detect_projectile_hit()
+        if (!isShipShielded()) {
+            detect_spaceshit_hit()
+        }
+        updateAnimationTimes(1)
+    },1)
 }
 
-export function getGameLogicLoop() {
-    return game_logic_loop
+export function clearGameLogicLoop() {
+    clearInterval(game_logic_loop)
+}
+
+export function startSecondCounter() {
+    self.second_counter=setInterval(function () {
+        addSecondsElapsed(1)
+        addTimeSinceLastAsteroidSpawn(1)
+    },1000)
+}
+
+export function clearSecondCounter() {
+    clearInterval(self.second_counter)
+}
+
+export function isPaused() {
+    return self.paused
+}
+
+export function setPaused(paused) {
+    self.paused=paused
 }
 
 export function setSecondsElapsed(seconds_elapsed) {
@@ -23,15 +57,15 @@ export function addSecondsElapsed(time) {
     self.seconds_elapsed+=time
 }
 
-export function setTimeSinceLastSpawn(time_since_last_spawn) {
+export function setTimeSinceLastAsteroidSpawn(time_since_last_spawn) {
     self.time_since_last_spawn=time_since_last_spawn
 }
 
-export function getTimeSinceLastSpawn() {
+export function getTimeSinceLastAsteroidSpawn() {
     return self.time_since_last_spawn
 }
 
-export function addTimeSinceLastSpawn(time) {
+export function addTimeSinceLastAsteroidSpawn(time) {
     self.time_since_last_spawn+=time
 }
 
@@ -88,18 +122,6 @@ export function calculate_distance(pos1, pos2) {
     return Math.pow(pos1[0]-pos2[0],2)+Math.pow(pos1[1]-pos2[1],2)
 }
 
-export function game_logic() {
-    move_projectiles()
-    move_meteorites()
-    detect_projectile_hit()
-    if (!isShipShielded()) {
-        detect_spaceshit_hit()
-    }
-    addSecondsElapsed(1)
-    addTimeSinceLastSpawn(1)
-    store_animation_states(1)
-}
-
 export function move_player(e) {
     let rel_mouse_pos_x = Math.ceil(e.clientX - self.$gamespace.offset().left - getShipWidth()/2);
     //console.log(getShipWidth())
@@ -109,7 +131,7 @@ export function move_player(e) {
     });
 }
 
-export function move_projectiles() {
+function move_projectiles() {
     $(".projectile").each(function () {
         $(this).animate({
             top: "-=10"
@@ -121,36 +143,42 @@ export function move_projectiles() {
     })
 }
 
-export function move_meteorites() {
-    $(".meteorite").each(function () {
-        let fallspeed = $(this).attr("fallspeed")
-
-        let rotation = $(this).attr("meteorrotation")
-        let sign = rotation<0 ? "-=" : "+="
-        $(this).animate({rotate: sign+Math.abs(rotation)+"deg"},1, "linear")
-        $(this).css( {top: "+="+fallspeed})
-        if (parseInt($(this).css("top")) >= gamespace_height) {
-            $(this).remove()
+function moveAsteroids() {
+    getAsteroids().forEach(function (current_asteroid) {
+        let sign = current_asteroid.rotationspeed<0 ? "-=" : "+="
+        $(current_asteroid.$asteroid).animate({rotate: sign+Math.abs(current_asteroid.rotationspeed)+"deg"},1, "linear")
+        $(current_asteroid.$asteroid).css( {top: "+="+current_asteroid.fallspeed})
+        if (parseInt($(current_asteroid.$asteroid).css("top")) >= getGameSpaceHeight()) {
+            $(current_asteroid.$asteroid).remove()
+            getAsteroids().splice(current_asteroid.index, 1)
+            current_asteroid.updateAsteroidArrayIndexes()
         }
     })
 }
 
-export function store_animation_states(time) {
-    $(".explosion").each(function () {
-        let anim_time = parseInt($(this).attr("animtimepassed"))+time
-        $(this).attr({
-            animtimepassed:anim_time
-        })
+function rotateDestroyedAsteroids() {
+    getDestroyedAsteroids().forEach(function (current_destroyed_asteroid) {
+        let sign = current_destroyed_asteroid.rotationspeed<0 ? "-=" : "+="
+        $(current_destroyed_asteroid.$asteroid).animate({rotate: sign+Math.abs(current_destroyed_asteroid.rotationspeed)+"deg"},1, "linear")
+    })
+}
+
+export function updateAnimationTimes(time) {
+    getDestroyedAsteroids().forEach(asteroid=>{
+        asteroid.updateAsteroidDestroyedCurrentAnimtime(time)
     })
 }
 
 function detect_projectile_hit() {
     $(".projectile").each( function (p_index, current_projectile) {
-        $(".meteorite").each( function (m_index, current_meteorite) {
-            let meteoritepos=[
-                parseInt($(current_meteorite).css("left"))+parseInt($(current_meteorite).css("width"))/2,
-                parseInt($(current_meteorite).css("top"))+parseInt($(current_meteorite).css("height"))/2
+        getAsteroids().forEach(function (current_asteroid) {
+
+            let asteroidpos=[
+                parseInt($(current_asteroid.$asteroid).css("left"))+parseInt($(current_asteroid.$asteroid).css("width"))/2,
+                parseInt($(current_asteroid.$asteroid).css("top"))+parseInt($(current_asteroid.$asteroid).css("height"))/2
             ]
+            //console.log(asteroidpos)
+
             let shotposl=[
                 parseInt($(current_projectile).css("left")),
                 parseInt($(current_projectile).css("top"))
@@ -159,9 +187,9 @@ function detect_projectile_hit() {
                 parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width")),
                 parseInt($(current_projectile).css("top"))
             ]
-            if (calculate_distance(meteoritepos, shotposl) <= Math.pow(parseInt($(current_meteorite).css("width"))/2,2) ||
-                calculate_distance(meteoritepos, shotposr) <= Math.pow(parseInt($(current_meteorite).css("width"))/2,2)) {
-                update_shot_asteroid(current_meteorite, current_projectile)
+            if (calculate_distance(asteroidpos, shotposl) <= Math.pow(parseInt($(current_asteroid.$asteroid).css("width"))/2,2) ||
+                calculate_distance(asteroidpos, shotposr) <= Math.pow(parseInt($(current_asteroid.$asteroid).css("width"))/2,2)) {
+                current_asteroid.registerHit(current_projectile)
             }
         })
     })
@@ -184,39 +212,6 @@ function detect_spaceshit_hit() {
 }
 
 export function spawn_asteroid() {
-    let size=Math.random()
-    let hp
-    let img
-    let asteroidsize
-    if (size <= 0.2) {
-        hp=4
-        asteroidsize=1
-        size =  getAsteroidBase().width()*2
-        img=getAsteroidStateFrame(4)
-    } else if (size <= 0.4) {
-        hp=6
-        asteroidsize=2
-        size = getAsteroidBase().width()*2.5
-        img=getAsteroidStateFrame(3)
-    } else if (size <= 0.6) {
-        hp=8
-        asteroidsize=3
-        size = getAsteroidBase().width()*3
-        img=getAsteroidStateFrame(2)
-    } else if (size <= 0.8) {
-        hp=10
-        asteroidsize=4
-        size = getAsteroidBase().width()*3.5
-        img=getAsteroidStateFrame(1)
-    } else {
-        hp=12
-        asteroidsize=5
-        size = getAsteroidBase().width()*4
-        img=getAsteroidStateFrame(0)
-    }
-
-    let fallspeed=0.25+Math.min(seconds_elapsed, 200)*0.0025
-
     let rotation=Math.random()-0.5
     if (rotation<=0) {
         rotation=rotation-0.5
@@ -224,27 +219,29 @@ export function spawn_asteroid() {
         rotation=rotation+0.5
     }
 
-    getShotsDiv().append($(cloneAsteroid()).css({
-        top: -size,
-        left: Math.round(Math.random()*(getGameSpaceWidth()-size)),
-        width: size,
-        height: size
-    }).attr({
-        src: img.src,
-        hp: hp,
-        asteroidsize: asteroidsize,
-        meteorrotation: rotation,
-        fallspeed: fallspeed
-    }))
-    setTimeSinceLastSpawn(0)
-    setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,seconds_elapsed)*4))
+    let spawned_asteroid = new Asteroid(
+        Math.random(),
+        0.25+Math.min(getSecondsElapsed(), 200)*0.0025,
+        rotation,
+        getAsteroids().length
+    );
+
+    addAsteroid(spawned_asteroid)
+    getAsteroidDiv().append($(spawned_asteroid.$asteroid))
+    setTimeSinceLastAsteroidSpawn(0)
+    setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,getSecondsElapsed())*4))
 }
 
-export function pause_game() {
+export function pauseGame() {
     clearTimeout(getAsteroidSpawner())
-    clearInterval(game_logic_loop)
-    $(".meteorite").each(function () {
-        $(this).stop(true)
+    clearGameLogicLoop()
+    clearSecondCounter()
+    getAsteroids().forEach(element => {
+        $(element.$asteroid).stop(true)
+    })
+    getDestroyedAsteroids().forEach(element => {
+        clearTimeout(element.animtimeout)
+        $(element.$asteroid).stop(true)
     })
     $(".projectile").each(function () {
         $(this).stop(true)
@@ -252,8 +249,12 @@ export function pause_game() {
     $(window).off("mousemove mousedown mouseup keyup")
 }
 
-export function unpause_game() {
+export function unpauseGame() {
     setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,seconds_elapsed)*4-time_since_last_spawn))
-    setGameLogicLoop(setInterval(game_logic,1))
+    startGameLogicLoop()
+    startSecondCounter()
     add_ship_eventhandlers()
+    getDestroyedAsteroids().forEach(element => {
+        element.continueAsteroidDestroyAnimation()
+    })
 }

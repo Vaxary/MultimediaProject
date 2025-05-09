@@ -1,10 +1,11 @@
 import {
     setGameSpace,
     getGameSpace,
-    pause_game,
-    unpause_game,
-    game_logic,
-    setShotsDiv, setAsteroidDiv, spawn_asteroid, setAsteroidSpawner, setGameLogicLoop
+    setShotsDiv,
+    setAsteroidDiv,
+    spawn_asteroid,
+    setAsteroidSpawner,
+    startSecondCounter, startGameLogicLoop, pauseGame, unpauseGame, isPaused, setPaused
 } from "./modules/gamelogic.js";
 import {
     add_ship_eventhandlers,
@@ -17,26 +18,24 @@ import {setAsteroidBase} from "./modules/asteroid.js";
 import {setProjectileBase} from "./modules/projectile.js";
 
 let pause_button
-let paused=false
 
 $(function () {
     console.log("Site ready");
     setGameSpace($("#gamespace"))
     setShip($("<img src='assets/spaceship.png' alt='player spaceship' id='player'>"))
     setShotsDiv($("#shots"))
-    setAsteroidDiv($("#meteorites"))
+    setAsteroidDiv($("#asteroids"))
     setProjectileBase($("<img src='assets/spaceshipprojectile.png' alt='player spaceship projectile' class='projectile'>"))
-    setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='meteorite'>"))
+    setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
     pause_button=$("#pausebutton")
 
     $(pause_button).on('click', function () {
-        if (!paused) {
-            console.log("paused")
-            paused=true
-            pause_game()
+        if (!isPaused()) {
+            setPaused(true)
+            pauseGame()
         } else {
-            paused=false
-            unpause_game()
+            setPaused(false)
+            unpauseGame()
         }
     })
 
@@ -46,9 +45,13 @@ $(function () {
             setShipHeight($(getShip()).height()*4)
             setShipWidth($(getShip()).width()*4)
             initialization()
-            setGameLogicLoop(setInterval(game_logic, 1))
-            setShipLoaded(true)
+
+            startGameLogicLoop()
+            startSecondCounter()
+
             setAsteroidSpawner(setTimeout(spawn_asteroid, 2000))
+
+            setShipLoaded(true)
             console.log("Player ready")
         }
     })
@@ -58,5 +61,12 @@ $(function () {
         console.log("Projectile ready")
     })
 
-    $($gamespace).on('dragstart', function(event) { event.preventDefault(); });
+    $(getGameSpace()).on('dragstart', function(event) { event.preventDefault(); });
+
+    $(window).on('blur', function () {
+        if (!isPaused()) {
+            setPaused(true)
+            pauseGame()
+        }
+    })
 })

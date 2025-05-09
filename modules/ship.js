@@ -1,5 +1,18 @@
 import {getShotsDiv, move_player} from "./gamelogic.js";
 import {cloneProjectile, getProjWidth, getShootInterval, setShootInterval} from "./projectile.js";
+self.score=0
+
+export function getScore() {
+    return self.score
+}
+
+export function setScore(score) {
+    self.score=score
+}
+
+export function addScore(score) {
+    self.score+=score
+}
 
 export function setShip(ship) {
     self.ship = ship
