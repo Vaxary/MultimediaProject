@@ -44,10 +44,11 @@ export class Ship {
         this.width=this.$ship.width()*4
         this.height=this.$ship.height()*4
         this.top=getGameSpaceHeight()-this.height-50
+        this.pos=getGameSpaceWidth()/2-this.width/2
         this.$ship.css({
             width: this.width,
             height: this.height,
-            left: getGameSpaceWidth()/2-this.width/2,
+            left: this.pos,
             top: this.top
         })
     }
