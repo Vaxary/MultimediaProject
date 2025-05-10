@@ -246,6 +246,10 @@ function rotateDestroyedAsteroids() {
     })
 }
 
+export function animateButton($button) {
+    $($button).animate({scale: 1.25},75).animate({scale: 1},75)
+}
+
 //hit detection
 export function calculate_distance(pos1, pos2) {
     return Math.pow(pos1[0]-pos2[0],2)+Math.pow(pos1[1]-pos2[1],2)
@@ -281,15 +285,29 @@ function detect_projectile_hit() {
 function detect_spaceshit_hit() {
     if (!getShip().shielded) {
         getAsteroids().forEach(asteroid=>{
+            let asteroidradius=parseInt($(asteroid.$asteroid).css("width"))/2
             let asteroidpos=[
                 parseInt($(asteroid.$asteroid).css("left"))+parseInt($(asteroid.$asteroid).css("width"))/2,
                 parseInt($(asteroid.$asteroid).css("top"))+parseInt($(asteroid.$asteroid).css("height"))/2
             ]
-            let shippos=[
-                getShip().pos+getShip().width/2,
-                getShip().top+getShip().height/4*2.5
+            let shipposleft=[
+                getShip().pos+getShip().width/3.75,
+                getShip().top+getShip().height/7*5,
+                getShip().width/3.6
             ]
-            if (calculate_distance(asteroidpos, shippos) <= Math.pow(getShip().width/3*2,2)) {
+            let shipposright=[
+                getShip().pos+(getShip().width-getShip().width/3.75),
+                getShip().top+getShip().height/7*5,
+                getShip().width/3.6
+            ]
+            let shippostop=[
+                getShip().pos+getShip().width/2,
+                getShip().top+getShip().height/4,
+                getShip().width/4
+            ]
+            if (calculate_distance(asteroidpos, shipposleft) <= Math.pow(shipposleft[2]+asteroidradius,2) ||
+                calculate_distance(asteroidpos, shipposright) <= Math.pow(shipposright[2]+asteroidradius,2) ||
+                calculate_distance(asteroidpos, shippostop) <= Math.pow(shippostop[2]+asteroidradius,2)) {
                 getShip().register_ship_hit()
             }
         })
@@ -379,7 +397,7 @@ export function togglePause() {
         unpauseGame()
     }
     $(getPauseButton()).stop(true)
-    $(getPauseButton()).animate({scale: 1.2},75).animate({scale: 1},75)
+    animateButton(getPauseButton())
 }
 
 export function startGame() {

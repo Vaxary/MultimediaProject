@@ -1,5 +1,6 @@
 import {
-    getGameSpace, getGameSpaceHeight, getPauseButton, getRestartButton, getRestartOverlay,
+    animateButton,
+    getGameSpace, getGameSpaceHeight, getGameSpaceWidth, getPauseButton, getRestartButton, getRestartOverlay,
     getShotsDiv, restartGame, togglePause, updateShipHpBox
 } from "./gamelogic.js";
 import {cloneProjectile, getProjWidth} from "./projectile.js";
@@ -14,6 +15,7 @@ export class Ship {
         this.hp=3
         //this.planethp=10
         this.score=0
+        this.debuging_hitbox=false
         this.shielded=false
         this.hit=false
         this.pos=0
@@ -24,6 +26,9 @@ export class Ship {
         this.animframe=0
         this.animtime=0
         this.animtimeout=0
+        if (this.debuging_hitbox) {
+            this.setupDebugHitboxes()
+        }
     }
 
     updateSizeAndPos() {
@@ -33,8 +38,29 @@ export class Ship {
         this.$ship.css({
             width: this.width,
             height: this.height,
+            left: getGameSpaceWidth()/2-this.width/2,
             top: this.top
         })
+    }
+
+    deleteDebugHitboxes() {
+        this.debughitboxes[0].remove()
+        this.debughitboxes[1].remove()
+        this.debughitboxes[2].remove()
+    }
+
+    setupDebugHitboxes() {
+        let debughitboxleft=$("<div class='debughitbox'></div>")
+        let debughitboxright=$("<div class='debughitbox'></div>")
+        let debughitboxtop=$("<div class='debughitbox'></div>")
+        getGameSpace().append(debughitboxleft)
+        getGameSpace().append(debughitboxright)
+        getGameSpace().append(debughitboxtop)
+        this.debughitboxes=[
+            debughitboxleft,
+            debughitboxright,
+            debughitboxtop
+        ]
     }
 
     enableShipEventhandlers() {
@@ -94,7 +120,7 @@ export class Ship {
             this.animtimeout=setTimeout(function () {
                 getShip().$ship.attr({src: self.ship_states[0].src})
                 getShip().shielded=false
-            }, 4000)
+            }, 4500)
         }
     }
 
@@ -110,18 +136,21 @@ export class Ship {
             this.animtimeout=setTimeout(function () {
                 getShip().$ship.attr({src: self.ship_states[0].src})
                 getShip().shielded=false
-            }, 4000-getShip().animtime)
+            }, 4500-getShip().animtime)
         }
     }
 
     startDestroyedShipHitAnimation(fromframe=0) {
-        if (fromframe < 12) {
+        if (fromframe < destroyed_ship_frames.length-1) {
             this.$ship.attr({src: self.destroyed_ship_frames[fromframe][0].src})
             setTimeout(function () {
                 getShip().startDestroyedShipHitAnimation(fromframe+1)
             }, self.destroyed_ship_frames[fromframe][1])
         } else {
             this.$ship.attr({src: self.destroyed_ship_frames[fromframe][0].src})
+            if (this.debuging_hitbox) {
+                this.deleteDebugHitboxes()
+            }
             setTimeout(getShip().destroyShip, self.destroyed_ship_frames[fromframe][1])
         }
     }
@@ -139,15 +168,19 @@ export class Ship {
     }
 
     destroyShip() {
-        getShip().$ship.remove()
-        togglePause()
         $(getPauseButton()).off("click")
-        $(getRestartOverlay()).show()
-        $(getRestartButton()).on("click", function () {
-            $(getRestartButton()).animate({scale: 1.2}, 75).animate({scale: 1}, 75)
-            $(getRestartButton()).off("click")
-            setTimeout(restartGame, 150)
-        })
+        getShip().$ship.remove()
+        setTimeout(function () {
+            togglePause()
+
+            $(getRestartOverlay()).show()
+            $(getRestartButton()).on("click", function () {
+                animateButton(getRestartButton())
+                $(getRestartButton()).off("click")
+                setTimeout(restartGame, 200)
+            })
+        }, 1000)
+
     }
 
     register_ship_hit() {
@@ -174,6 +207,46 @@ export class Ship {
             left: rel_mouse_pos_x
         })
         this.pos=rel_mouse_pos_x
+        if (this.debuging_hitbox) {
+            this.moveDebugHitboxes()
+        }
+
+    }
+
+    moveDebugHitboxes() {
+        let shipposleft=[
+            getShip().pos+getShip().width/3.75,
+            getShip().top+getShip().height/7*5,
+            getShip().width/3.6
+        ]
+        let shipposright=[
+            getShip().pos+(getShip().width-getShip().width/3.75),
+            getShip().top+getShip().height/7*5,
+            getShip().width/3.6
+        ]
+        let shippostop=[
+            getShip().pos+getShip().width/2,
+            getShip().top+getShip().height/4,
+            getShip().width/4
+        ]
+        $(this.debughitboxes[0]).css({
+            left: shipposleft[0]-shipposleft[2],
+            top: shipposleft[1]-shipposleft[2],
+            width: shipposleft[2]*2,
+            height: shipposleft[2]*2
+        })
+        $(this.debughitboxes[1]).css({
+            left: shipposright[0]-shipposright[2],
+            top: shipposright[1]-shipposright[2],
+            width: shipposright[2]*2,
+            height: shipposright[2]*2
+        })
+        $(this.debughitboxes[2]).css({
+            left: shippostop[0]-shippostop[2],
+            top: shippostop[1]-shippostop[2],
+            width: shippostop[2]*2,
+            height: shippostop[2]*2
+        })
     }
 
     registerPlanetHit() {

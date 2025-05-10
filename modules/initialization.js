@@ -29,11 +29,11 @@ import {
 } from "./asteroid.js";
 
 export function initialization() {
+    initRestartOverlay()
+    initPauseButton()
     init_projectile()
     init_meteorite()
     initShipStates()
-    initPauseButton()
-    initRestartOverlay()
     initShipHpBox()
 }
 

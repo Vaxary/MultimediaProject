@@ -43,17 +43,15 @@ $(function () {
     setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
 
     initializeShip()
+
     $(getShip().$ship).on('load', loadShipFirst)
-
-    $(getPauseButton()).on('click', function () {
-        togglePause()
-    })
-
-
-
     projectile_base.on('load', function () {
         getShip().enableShipEventhandlers()
         projectile_base.off('load')
+    })
+
+    $(getPauseButton()).on('click', function () {
+        togglePause()
     })
 
     $(getGameSpace()).on('dragstart', function(event) { event.preventDefault(); });

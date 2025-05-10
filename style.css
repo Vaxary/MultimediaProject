@@ -107,3 +107,10 @@ body {
     height: 900px;
     image-rendering: pixelated;
 }
+
+.debughitbox {
+    border-radius: 50%;
+    position: absolute;
+    background-color: rgba(115, 166, 230, 0.73);
+    z-index: 4;
+}
