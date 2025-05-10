@@ -72,22 +72,37 @@ body {
     cursor: pointer;
 }
 
+#helppart {
+    display: block;
+    image-rendering: pixelated;
+    width: auto;
+    height: auto;
+}
+
 #helpbutton {
-    background-image: url("assets/helpbutton.png");
     top: 10px;
     left: 10px;
-    image-rendering: pixelated;
-    display: inline-block;
+    transition: scale 0.1s;
+    background-image: url("assets/helpbutton.png");
     z-index: 0;
+
+    position: absolute;
     cursor: help;
 }
 
-#helpbutton:hover .helptext {
+#helppart:hover .helptext {
     visibility: visible;
+    box-shadow: rgb(50,50,50) 10px 10px 20px;
+}
+
+#helppart:hover #helpbutton {
+    transition: scale 0.1s;
+    scale: 1.2;
 }
 
 .helptext {
-    top: 70px;
+    left: 10px;
+    top: 78px;
     visibility: hidden;
     position: absolute;
     z-index: 1;
@@ -99,6 +114,7 @@ body {
     padding: 15px;
     line-height: 28px;
 }
+
 
 .helpimg {
     scale: 2;
@@ -143,9 +159,7 @@ body {
     overflow: hidden;
     position: relative;
     display: block;
-    margin-top: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 10px auto;
     width: 600px;
     height: 900px;
     image-rendering: pixelated;
