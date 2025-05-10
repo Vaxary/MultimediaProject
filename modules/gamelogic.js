@@ -234,7 +234,7 @@ function moveAsteroids() {
             $(current_asteroid.$asteroid).remove()
             getAsteroids().splice(current_asteroid.index, 1)
             current_asteroid.updateAsteroidArrayIndexes()
-            getShip().registerPlanetHit()
+            //getShip().registerPlanetHit()
         }
     })
 }
@@ -389,6 +389,12 @@ export function unpauseGame() {
 }
 
 export function togglePause() {
+    togglePauseWithoutAnimations()
+    $(getPauseButton()).stop(true)
+    animateButton(getPauseButton())
+}
+
+export function togglePauseWithoutAnimations() {
     if (!isPaused()) {
         setPaused(true)
         pauseGame()
@@ -396,8 +402,6 @@ export function togglePause() {
         setPaused(false)
         unpauseGame()
     }
-    $(getPauseButton()).stop(true)
-    animateButton(getPauseButton())
 }
 
 export function startGame() {
@@ -432,7 +436,7 @@ export function restartGame() {
 
     $(getShip().$ship).on('load', loadShip)
     $(getPauseButton()).on("click", togglePause).show()
-    togglePause()
+    togglePauseWithoutAnimations()
 
     //getPauseScreen().show()
 }

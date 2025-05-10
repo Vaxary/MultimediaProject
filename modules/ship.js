@@ -1,7 +1,15 @@
 import {
     animateButton,
-    getGameSpace, getGameSpaceHeight, getGameSpaceWidth, getPauseButton, getRestartButton, getRestartOverlay,
-    getShotsDiv, restartGame, togglePause, updateShipHpBox
+    getGameSpace,
+    getGameSpaceHeight,
+    getGameSpaceWidth,
+    getPauseButton,
+    getRestartButton,
+    getRestartOverlay,
+    getShotsDiv,
+    restartGame,
+    togglePauseWithoutAnimations,
+    updateShipHpBox
 } from "./gamelogic.js";
 import {cloneProjectile, getProjWidth} from "./projectile.js";
 
@@ -12,7 +20,7 @@ self.ship_hp_indicator_icons=[]
 export class Ship {
     constructor() {
         this.$ship=$("<img src='../assets/spaceship.png' alt='player spaceship' id='player'>")
-        this.hp=3
+        this.hp=1
         //this.planethp=10
         this.score=0
         this.debuging_hitbox=false
@@ -171,7 +179,7 @@ export class Ship {
         $(getPauseButton()).off("click")
         getShip().$ship.remove()
         setTimeout(function () {
-            togglePause()
+            togglePauseWithoutAnimations()
 
             $(getRestartOverlay()).show()
             $(getRestartButton()).on("click", function () {
@@ -249,9 +257,9 @@ export class Ship {
         })
     }
 
-    registerPlanetHit() {
+    /*registerPlanetHit() {
         this.planethp-=1
-    }
+    }*/
 
     addScore(score) {
         this.score+=score
