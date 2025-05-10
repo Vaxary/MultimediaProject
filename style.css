@@ -32,6 +32,7 @@ body {
 }
 
 #shiphpbox {
+    display: none;
     position: absolute;
     right: 0;
     top: 40px;
@@ -48,6 +49,21 @@ body {
 #pausebutton {
     top: 10px;
     left: 10px;
+}
+
+#loadingoverlay {
+    position: absolute;
+    z-index: 5;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(100,100,100);
+}
+
+#loadingicon {
+    position: absolute;
+    top:50%;
+    left: 50%;
+    scale: 5;
 }
 
 #restartlabel {
@@ -117,16 +133,19 @@ body {
 
 
 .helpimg {
+    vertical-align: middle;
     scale: 2;
     padding: 0 20px;
 }
 
 .helphpimg {
+    vertical-align: middle;
     scale: 1.25;
     padding: 0 10px;
 }
 
 .helpprojimg {
+    vertical-align: middle;
     scale: 1.5;
     padding: 0 10px;
 }
@@ -142,6 +161,7 @@ body {
 }
 
 #scorelabel {
+    display: none;
     right: 10px;
     color: white;
     font-weight: bold;
@@ -149,6 +169,16 @@ body {
     z-index: 4;
     position: absolute;
     text-shadow: black 3px 3px 3px;
+}
+
+#startgamelabel {
+    text-align: center;
+    width: 100%;
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    font-size: 20pt;
+    z-index: 4;
 }
 
 #gamespace {
@@ -170,4 +200,34 @@ body {
     position: absolute;
     background-color: rgba(115, 166, 230, 0.73);
     z-index: 4;
+}
+
+#soundsliderbox {
+    width: auto;
+    height: auto;
+    display: inline-block;
+    position: absolute;
+    top: 60px;
+    right: 20px;
+    image-rendering: pixelated;
+}
+
+.soundslider {
+    color: white;
+    width: 200px;
+}
+
+#soundicon {
+    scale: 2;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+#neptun {
+    color: white;
+    font-weight: 450;
+    font-size: 16pt;
+    position: absolute;
+    top: 10px;
+    right: 10px;
 }

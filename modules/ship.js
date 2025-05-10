@@ -6,7 +6,7 @@ import {
     getPauseButton,
     getRestartButton,
     getRestartOverlay,
-    getShotsDiv,
+    getShotsDiv, getSoundSlider,
     restartGame,
     togglePauseWithoutAnimations,
     updateShipHpBox
@@ -28,6 +28,7 @@ export class Ship {
         this.hit=false
         this.pos=0
         this.width=0
+        this.shoot_sound=new Audio("../assets/shipshootsound.mp3")
         this.height=0
         this.top=0
         this.shootinterval=0
@@ -170,9 +171,16 @@ export class Ship {
 
     shootProjectile() {
         if (!this.hit) {
+            let audio = new Audio()
+            audio.src=getShip().shoot_sound.src
+
+            audio.volume=getSoundSlider().val()/100
+            //console.log(audio.volume)
+            audio.playbackRate=1.5
             getShotsDiv().append($(cloneProjectile()).css({
                 left: Math.ceil(getShip().pos+getShip().width/2-getProjWidth()/2)
             }))
+            audio.play()
         }
     }
 

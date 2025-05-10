@@ -1,4 +1,4 @@
-import {getGameSpaceWidth, updateScoreLabel} from "./gamelogic.js";
+import {getGameSpaceWidth, getSoundSlider, updateScoreLabel} from "./gamelogic.js";
 import {getShip} from "./ship.js";
 
 self.destroyed_asteroid_frames=[]
@@ -12,6 +12,7 @@ export class Asteroid {
         this.current_destroyed_animtime=0
         this._$asteroid=cloneAsteroid()
         this.animtimeout=0
+        this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.mp3");
         this.index=index
         if (size <= 0.2) {
             this._hp=4
@@ -95,6 +96,8 @@ export class Asteroid {
             getAsteroids().splice(this.index, 1)
             this.updateAsteroidArrayIndexes()
             this.index=getDestroyedAsteroids().length
+            this.asteroid_destroyed_sound.volume=getSoundSlider().val()/100
+            this.asteroid_destroyed_sound.play()
             getDestroyedAsteroids().push(this)
 
             this.startAsteroidDestroyAnimation()

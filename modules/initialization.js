@@ -6,11 +6,11 @@ import {
     setDestroyedShipFrame, setShipHpIndicatorImgs
 } from "./ship.js";
 import {
-    addPauseButtonImg,
+    addPauseButtonImg, finishLoading,
     getGameSpaceHeight, getGameSpaceWidth,
     getPauseButton,
     getPauseButtonImg, getRestartButton, getRestartLabel, getRestartOverlay,
-    getShipHpBox, setAsteroidSpawner, spawn_asteroid, startGameLogicLoop, startSecondCounter
+    getShipHpBox, getStartGameLabel
 } from "./gamelogic.js";
 import {
     getProjectileBase,
@@ -35,6 +35,7 @@ export function initialization() {
     init_meteorite()
     initShipStates()
     initShipHpBox()
+    initStartGameLabel()
 }
 
 export function loadShip() {
@@ -46,10 +47,18 @@ export function loadShip() {
 
 export function loadShipFirst() {
     loadShip()
-    startGameLogicLoop()
-    startSecondCounter()
-    setAsteroidSpawner(setTimeout(spawn_asteroid, 2000))
     initialization()
+    getPauseButton().css({
+        top: getGameSpaceHeight()/2-parseInt(getPauseButton().css("height"))/2,
+        left: getGameSpaceWidth()/2-parseInt(getPauseButton().css("width"))/2
+    })
+    setTimeout(finishLoading, 1000)
+}
+
+function initStartGameLabel() {
+    getStartGameLabel().css({
+        top: getGameSpaceHeight()/2-75
+    })
 }
 
 function initShipHpBox() {
@@ -78,7 +87,7 @@ function initPauseButton() {
     addPauseButtonImg(pause_button_play)
     $(getPauseButton()).css({
         scale: 1,
-        "background-image": "url("+getPauseButtonImg(0).src+")"
+        "background-image": "url("+getPauseButtonImg(1).src+")"
     })
 }
 

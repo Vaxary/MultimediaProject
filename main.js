@@ -10,11 +10,17 @@ import {
     setPauseButton,
     getPauseButton,
     setPauseScreen,
-    getPauseScreen,
     setShipHpBox,
     setRestartButton,
     setRestartLabel,
-    setRestartOverlay, togglePause
+    setRestartOverlay,
+    setSoundSlider,
+    setStartGameLabel,
+    setUpAfterStartGame,
+    togglePauseWithoutAnimations,
+    setLoadingIcon,
+    startLoadingInterval,
+    setLoadingOverlay, animateButton
 } from "./modules/gamelogic.js";
 import {
     getShip,
@@ -26,30 +32,43 @@ import {setProjectileBase} from "./modules/projectile.js";
 
 $(function () {
     setGameSpace($("#gamespace"))
+    setLoadingIcon($("#loadingicon"))
+    setLoadingOverlay($("#loadingoverlay"))
+    startLoadingInterval()
+
     setShotsDiv($("#shots"))
     setAsteroidDiv($("#asteroids"))
     setScoreLabel($("#scorelabel"))
     setPauseButton($("#pausebutton"))
     setPauseScreen($("#pausescreen"))
+    setSoundSlider($("#soundslider"))
+    setStartGameLabel($("#startgamelabel"))
+
 
     setRestartOverlay($("#restartoverlay"))
     setRestartButton($("#restartbutton"))
     setRestartLabel($("#restartlabel"))
     setShipHpBox($("#shiphpbox"))
-    getPauseScreen().hide()
     setProjectileBase($("<img src='assets/spaceshipprojectile.png' alt='player spaceship projectile' class='projectile'>"))
     setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
 
     initializeShip()
 
     $(getShip().$ship).on('load', loadShipFirst)
-    projectile_base.on('load', function () {
-        getShip().enableShipEventhandlers()
+    //getShip().enableShipEventhandlers()
+
+    /*projectile_base.on('load', function () {
         projectile_base.off('load')
-    })
+    })*/
 
     $(getPauseButton()).on('click', function () {
-        togglePause()
+        $(getPauseButton()).off('click')
+        animateButton(getPauseButton())
+        setTimeout(function () {
+            setUpAfterStartGame()
+            togglePauseWithoutAnimations()
+        },200)
+
     })
 
     $(getGameSpace()).on('dragstart', function(event) { event.preventDefault(); });

@@ -13,7 +13,7 @@ import {loadShip} from "./initialization.js";
 self.seconds_elapsed=0
 self.time_since_last_spawn=0
 self.pause_button_img=[]
-self.paused=false
+self.paused=true
 
 
 export function startGameLogicLoop() {
@@ -42,6 +42,16 @@ export function startSecondCounter() {
 
 export function clearSecondCounter() {
     clearInterval(self.second_counter)
+}
+
+export function startLoadingInterval() {
+    self.$loader=setInterval(function () {
+        getLoadingIcon().animate({rotate: "+=10deg"},20)
+    },5)
+}
+
+export function clearLoadingInterval() {
+    clearInterval(self.$loader)
 }
 
 export function isPaused() {
@@ -142,6 +152,14 @@ export function getGameSpaceWidth() {
     return self.gamespace_width
 }
 
+export function setSoundSlider($sound_slider) {
+    self.$sound_slider=$sound_slider
+}
+
+export function getSoundSlider() {
+    return self.$sound_slider
+}
+
 export function setPauseButton($pause_button) {
     self.$pause_button=$pause_button
 }
@@ -174,6 +192,14 @@ export function getRestartLabel() {
     return self.$restart_label
 }
 
+export function setStartGameLabel($startgame_label) {
+    return self.$startgame_label=$startgame_label
+}
+
+export function getStartGameLabel() {
+    return self.$startgame_label
+}
+
 export function addPauseButtonImg(pause_button_img) {
     self.pause_button_img.push(pause_button_img)
 }
@@ -200,6 +226,22 @@ export function setPauseScreen($pause_screen) {
 
 export function getPauseScreen() {
     return self.$pause_screen
+}
+
+export function setLoadingIcon($loading_icon) {
+    self.$loading_icon=$loading_icon
+}
+
+export function getLoadingIcon() {
+    return self.$loading_icon
+}
+
+export function setLoadingOverlay($loading_overlay) {
+    self.$loading_overlay=$loading_overlay
+}
+
+export function getLoadingOverlay() {
+    return self.$loading_overlay
 }
 
 
@@ -396,8 +438,18 @@ export function togglePauseWithoutAnimations() {
     }
 }
 
-export function startGame() {
+export function setUpAfterStartGame() {
+    getStartGameLabel().remove()
+    $(getPauseButton()).on('click', togglePause)
+    $(getPauseButton()).css({left: '', top: ''})
+    $(getShipHpBox()).show()
+    $(getScoreLabel()).show()
+}
 
+export function finishLoading() {
+    clearLoadingInterval()
+    getLoadingIcon().remove()
+    getLoadingOverlay().remove()
 }
 
 export function restartGame() {

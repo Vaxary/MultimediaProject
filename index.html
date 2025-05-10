@@ -18,8 +18,13 @@
         <br><br>After an asteroid hits you, you'll have a brief period of invulnerability indicated with <img src="assets/spaceshipshielded.png" alt="shielded ship" class="helphpimg"></span>
 </div>
 <div id="gamespace">
+    <div id="loadingoverlay">
+        <img id="loadingicon" src="assets/restartbutton.png" alt="loading icon">
+    </div>
     <div id="pausebutton" class="circularbutton"></div>
-
+    <div id="startgamelabel">
+        <p>Start Game</p>
+    </div>
     <p id="scorelabel">Score: 0</p>
     <div id="shiphpbox"></div>
     <div id="pausescreen"></div>
@@ -30,6 +35,9 @@
     <div id="shots"></div>
     <div id="asteroids"></div>
 </div>
-
+<p id="neptun">Neptun kód:</p>
+<div id="soundsliderbox">
+    <img src="assets/audio.png" alt="audio icon" id="soundicon"><label><input type="range" min=0" max="100" value="50" id="soundslider"></label>
+</div>
 </body>
 </html>
