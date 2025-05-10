@@ -116,14 +116,6 @@ export function refillShipHpBox() {
     }
 }
 
-export function setPlanetHpBox($planet_hpbox) {
-    self.$planet_hpbox=$planet_hpbox
-}
-
-export function getPlanetHpBox() {
-    return self.$planet_hpbox
-}
-
 export function setGameSpace($gamespace) {
     self.$gamespace = $gamespace
     self.gamespace_width=$gamespace.width()

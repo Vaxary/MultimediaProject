@@ -72,6 +72,49 @@ body {
     cursor: pointer;
 }
 
+#helpbutton {
+    background-image: url("assets/helpbutton.png");
+    top: 10px;
+    left: 10px;
+    image-rendering: pixelated;
+    display: inline-block;
+    z-index: 0;
+    cursor: help;
+}
+
+#helpbutton:hover .helptext {
+    visibility: visible;
+}
+
+.helptext {
+    top: 70px;
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+    background-color: white;
+    width: 300px;
+    font-weight: 450;
+    font-size: 16pt;
+    border-radius: 30px;
+    padding: 15px;
+    line-height: 28px;
+}
+
+.helpimg {
+    scale: 2;
+    padding: 0 20px;
+}
+
+.helphpimg {
+    scale: 1.25;
+    padding: 0 10px;
+}
+
+.helpprojimg {
+    scale: 1.5;
+    padding: 0 10px;
+}
+
 #pausescreen {
     display: block;
     position: absolute;

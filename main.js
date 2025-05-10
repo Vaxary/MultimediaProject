@@ -12,7 +12,6 @@ import {
     setPauseScreen,
     getPauseScreen,
     setShipHpBox,
-    setPlanetHpBox,
     setRestartButton,
     setRestartLabel,
     setRestartOverlay, togglePause
@@ -37,7 +36,6 @@ $(function () {
     setRestartButton($("#restartbutton"))
     setRestartLabel($("#restartlabel"))
     setShipHpBox($("#shiphpbox"))
-    setPlanetHpBox($("#planethpbox"))
     getPauseScreen().hide()
     setProjectileBase($("<img src='assets/spaceshipprojectile.png' alt='player spaceship projectile' class='projectile'>"))
     setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
