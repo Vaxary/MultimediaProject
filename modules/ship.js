@@ -20,7 +20,7 @@ self.ship_hp_indicator_icons=[]
 export class Ship {
     constructor() {
         this.$ship=$("<img src='../assets/spaceship.png' alt='player spaceship' id='player'>")
-        this.hp=1
+        this.hp=3
         //this.planethp=10
         this.score=0
         this.debuging_hitbox=false

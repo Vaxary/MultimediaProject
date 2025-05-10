@@ -61,6 +61,7 @@ function initShipHpBox() {
     for (let i = 0; i < getShip().hp; i++) {
         let $ship_hpicon=$("<img src='"+ship_hpbox_full_img.src+"' alt='ship hpbox indicator' class='shiphpicon'>")
         $ship_hpicon.css({
+            scale:1,
             right: 40*i+5
         })
         getShipHpBox().append($ship_hpicon)

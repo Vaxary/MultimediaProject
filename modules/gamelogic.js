@@ -107,7 +107,7 @@ export function getShipHpBox() {
 }
 
 export function updateShipHpBox() {
-    getShipHpIndicatorIcon(getShip().hp).attr({src:getShipHpIndicatorImg(0).src}).animate({scale: 1.2},75).animate({scale: 1},75)
+    getShipHpIndicatorIcon(getShip().hp).attr({src:getShipHpIndicatorImg(0).src}).animate({scale: 0.5},50).animate({scale: 1.2},75).animate({scale: 1},75)
 }
 
 export function refillShipHpBox() {
