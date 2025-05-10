@@ -112,6 +112,7 @@ export class Ship {
 
     disableShipEventhandlers() {
         $(window).off('mousemove mousedown mouseup keydown keyup')
+        clearInterval(getShip().shootinterval)
     }
 
     startShipHitAnimation(fromframe=0) {
