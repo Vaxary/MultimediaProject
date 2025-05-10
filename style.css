@@ -53,17 +53,22 @@ body {
 
 #loadingoverlay {
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 5;
     width: 100%;
     height: 100%;
-    background-color: rgb(100,100,100);
+    background-color: rgba(100,100,100);
 }
 
 #loadingicon {
-    position: absolute;
-    top:50%;
-    left: 50%;
     scale: 5;
+    z-index: 6;
+}
+
+#restartoverlay {
+    display: none;
 }
 
 #restartlabel {
@@ -156,7 +161,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 3;
-    background-color: rgba(150, 150, 150, 0.2);
+    /*background-color: rgba(150, 150, 150, 0.2);*/
     backdrop-filter: blur(5px);
 }
 
@@ -172,6 +177,7 @@ body {
 }
 
 #startgamelabel {
+    display: none;
     text-align: center;
     width: 100%;
     position: absolute;

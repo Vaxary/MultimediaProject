@@ -447,8 +447,8 @@ export function setUpAfterStartGame() {
 }
 
 export function finishLoading() {
+    getStartGameLabel().show()
     clearLoadingInterval()
-    getLoadingIcon().remove()
     getLoadingOverlay().remove()
 }
 

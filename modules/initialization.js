@@ -9,7 +9,7 @@ import {
     addPauseButtonImg, finishLoading,
     getGameSpaceHeight, getGameSpaceWidth,
     getPauseButton,
-    getPauseButtonImg, getRestartButton, getRestartLabel, getRestartOverlay,
+    getPauseButtonImg, getRestartButton, getRestartLabel,
     getShipHpBox, getStartGameLabel
 } from "./gamelogic.js";
 import {
@@ -92,7 +92,6 @@ function initPauseButton() {
 }
 
 function initRestartOverlay() {
-    getRestartOverlay().hide()
     initRestartButton()
     initRestartLabel()
 }
