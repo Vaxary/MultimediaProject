@@ -23,9 +23,20 @@
     </div>
 
     <div id="pausebutton" class="circularbutton"></div>
+
+    <div id="savescoresystem">
+        <div id="savescorebutton" class="circularbutton"></div>
+        <label><input type="text" placeholder="Enter your name" id="nameinput"></label>
+        <div id="scoreinfo">
+            <p>Save your score</p>
+        </div>
+    </div>
+
+
     <div id="startgamelabel">
         <p>Start Game</p>
     </div>
+
     <p id="scorelabel">Score: 0</p>
     <div id="shiphpbox"></div>
     <div id="pausescreen"></div>
@@ -36,9 +47,19 @@
     <div id="shots"></div>
     <div id="asteroids"></div>
 </div>
-<p id="neptun">Neptun kód:</p>
+<p id="neptun">Név: Kelemen Bálint Péter<br>
+    Neptun kód: HF9N28</p>
 <div id="soundsliderbox">
-    <img src="assets/audio.png" alt="audio icon" id="soundicon"><label><input type="range" min=0" max="100" value="50" id="soundslider"></label>
+    <img src="assets/audio.png" alt="audio icon" id="soundicon"><label><input type="range" min="0" max="100" value="50" id="soundslider"></label>
+</div>
+<div id="scoretablebox">
+    <table id="scoretable">
+        <tr id="scoretableheader">
+            <th>Name</th>
+            <th>Score</th>
+        </tr>
+        <tr><td id="scoreplaceholder" colspan="2">No scores yet</td></tr>
+    </table>
 </div>
 </body>
 </html>

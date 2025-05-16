@@ -100,6 +100,7 @@ export class Asteroid {
             this.asteroid_destroyed_sound.play()
             getDestroyedAsteroids().push(this)
 
+            $(this.$asteroid).stop(true)
             this.startAsteroidDestroyAnimation()
         } else if (this.hp<=2) {
             $(this.$asteroid).attr({

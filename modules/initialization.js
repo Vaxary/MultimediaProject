@@ -6,11 +6,19 @@ import {
     setDestroyedShipFrame, setShipHpIndicatorImgs
 } from "./ship.js";
 import {
-    addPauseButtonImg, finishLoading,
-    getGameSpaceHeight, getGameSpaceWidth,
+    addPauseButtonImg,
+    finishLoading,
+    getGameSpaceHeight,
+    getGameSpaceWidth,
     getPauseButton,
-    getPauseButtonImg, getRestartButton, getRestartLabel,
-    getShipHpBox, getStartGameLabel
+    getPauseButtonImg,
+    getRestartButton,
+    getRestartLabel,
+    getScoreInfoLabel,
+    getScoreNameInput, getScorePlaceholder,
+    getScoreSaveButton, getScoreTable,
+    getShipHpBox,
+    getStartGameLabel
 } from "./gamelogic.js";
 import {
     getProjectileBase,
@@ -36,6 +44,7 @@ export function initialization() {
     initShipStates()
     initShipHpBox()
     initStartGameLabel()
+    initScoreSaveSystem()
 }
 
 export function loadShip() {
@@ -88,6 +97,50 @@ function initPauseButton() {
     $(getPauseButton()).css({
         scale: 1,
         "background-image": "url("+getPauseButtonImg(1).src+")"
+    })
+}
+
+export function initScoreTable() {
+    let empty=true
+    for (let player in localStorage) {
+        if (localStorage.getItem(player)!=null) {
+            empty=false
+            let scores=localStorage.getItem(player).split(";")
+            for (let score in scores)
+            getScoreTable().append("<tr><td>"+player+"</td><td>"+scores[score]+"</td></tr>")
+        }
+    }
+    if (!empty) {
+        getScorePlaceholder().remove()
+    }
+}
+
+function initScoreSaveSystem() {
+    initScoreInfoLabel()
+    initScoreNameInput()
+    initSaveScoreButton()
+}
+
+function initScoreInfoLabel() {
+    $(getScoreInfoLabel()).css({
+        top: getGameSpaceHeight()/2-250
+    })
+}
+
+function initScoreNameInput() {
+    $(getScoreNameInput()).css({
+        width: 150,
+        height: 40,
+        top: getGameSpaceHeight()/2-200,
+        left: getGameSpaceWidth()/2-75
+    })
+}
+
+function initSaveScoreButton() {
+    $(getScoreSaveButton()).css({
+        scale: 1,
+        top: getGameSpaceHeight()/2-140,
+        left: getGameSpaceWidth()/2-(getScoreSaveButton().width()/2)
     })
 }
 

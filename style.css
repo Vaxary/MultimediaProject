@@ -213,7 +213,7 @@ body {
     height: auto;
     display: inline-block;
     position: absolute;
-    top: 60px;
+    top: 90px;
     right: 20px;
     image-rendering: pixelated;
 }
@@ -229,6 +229,34 @@ body {
     margin-right: 20px;
 }
 
+#scoreinfo {
+    font-weight: bold;
+    font-size: 20pt;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    z-index: 4;
+    color: white;
+}
+
+#savescorebutton {
+
+    background-image: url("assets/savebutton.png");
+    position: absolute;
+    z-index: 4;
+}
+
+#nameinput {
+    text-align: center;
+    font-size: 12pt;
+    position: absolute;
+    z-index: 4;
+}
+
+#savescoresystem {
+    display: none;
+}
+
 #neptun {
     color: white;
     font-weight: 450;
@@ -236,4 +264,34 @@ body {
     position: absolute;
     top: 10px;
     right: 10px;
+}
+
+#scoretable {
+    border-collapse: collapse;
+}
+
+#scoretablebox {
+    position: absolute;
+    right: 10px;
+    top: 140px;
+    background-color: rgb(159, 159, 159);
+    color: white;
+    height: auto;
+}
+
+#scoretableheader th {
+    width: 200px;
+}
+
+#scoretable th:nth-child(odd), td:nth-child(odd) {
+    border-right: 1px solid black;
+}
+
+#scoretable td {
+    padding-left: 20px;
+    border-top: 1px solid black;
+}
+
+#scoreplaceholder {
+    border-right: 0;
 }

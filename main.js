@@ -3,9 +3,6 @@ import {
     getGameSpace,
     setShotsDiv,
     setAsteroidDiv,
-    pauseGame,
-    isPaused,
-    setPaused,
     setScoreLabel,
     setPauseButton,
     getPauseButton,
@@ -20,17 +17,26 @@ import {
     togglePauseWithoutAnimations,
     setLoadingIcon,
     startLoadingInterval,
-    setLoadingOverlay, animateButton
+    setLoadingOverlay,
+    animateButton,
+    setScoreNameInput,
+    setScoreSaveButton,
+    setScoreInfoLabel,
+    setScoreSystem,
+    pauseWithoutAnimations, setScoreTable, setScorePlaceholder
 } from "./modules/gamelogic.js";
 import {
     getShip,
     initializeShip
 } from "./modules/ship.js";
-import {loadShipFirst} from "./modules/initialization.js";
+import {initScoreTable, loadShipFirst} from "./modules/initialization.js";
 import {setAsteroidBase} from "./modules/asteroid.js";
 import {setProjectileBase} from "./modules/projectile.js";
 
 $(function () {
+    setScoreTable($("#scoretable"))
+    setScorePlaceholder($("#scoreplaceholder"))
+    initScoreTable()
     setGameSpace($("#gamespace"))
     setLoadingIcon($("#loadingicon"))
     setLoadingOverlay($("#loadingoverlay"))
@@ -44,6 +50,10 @@ $(function () {
     setSoundSlider($("#soundslider"))
     setStartGameLabel($("#startgamelabel"))
 
+    setScoreSystem($("#savescoresystem"))
+    setScoreInfoLabel($("#scoreinfo"))
+    setScoreNameInput($("#nameinput"))
+    setScoreSaveButton($("#savescorebutton"))
 
     setRestartOverlay($("#restartoverlay"))
     setRestartButton($("#restartbutton"))
@@ -73,10 +83,5 @@ $(function () {
 
     $(getGameSpace()).on('dragstart', function(event) { event.preventDefault(); });
 
-    $(window).on('blur', function () {
-        if (!isPaused()) {
-            setPaused(true)
-            pauseGame()
-        }
-    })
+    $(window).on('blur', pauseWithoutAnimations)
 })

@@ -5,10 +5,9 @@ import {
     getGameSpaceWidth,
     getPauseButton,
     getRestartButton,
-    getRestartOverlay,
-    getShotsDiv, getSoundSlider,
-    restartGame,
-    togglePauseWithoutAnimations,
+    getRestartOverlay, getScoreSaveButton, getScoreSystem, getShipHpBox,
+    getShotsDiv, getSoundSlider, pauseWithoutAnimations, resetSaveSystem,
+    restartGame, saveScore,
     updateShipHpBox
 } from "./gamelogic.js";
 import {cloneProjectile, getProjWidth} from "./projectile.js";
@@ -189,12 +188,18 @@ export class Ship {
         $(getPauseButton()).off("click")
         getShip().$ship.remove()
         setTimeout(function () {
-            togglePauseWithoutAnimations()
+            pauseWithoutAnimations()
+            resetSaveSystem()
+            getShipHpBox().hide()
+
+            $(getScoreSystem()).show()
+            $(getScoreSaveButton()).on("click", saveScore)
 
             $(getRestartOverlay()).show()
             $(getRestartButton()).on("click", function () {
                 animateButton(getRestartButton())
                 $(getRestartButton()).off("click")
+                $(getScoreSaveButton()).off("click")
                 setTimeout(restartGame, 200)
             })
         }, 1000)

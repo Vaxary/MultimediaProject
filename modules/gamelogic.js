@@ -16,6 +16,9 @@ self.pause_button_img=[]
 self.paused=true
 
 
+
+
+
 export function startGameLogicLoop() {
     self.game_logic_loop=setInterval(function () {
         moveProjectiles()
@@ -27,21 +30,12 @@ export function startGameLogicLoop() {
         }
         updateAnimationTimes(1)
         addTimeSinceLastAsteroidSpawn(1)
+        addSecondsElapsed(1)
     },1)
 }
 
 export function clearGameLogicLoop() {
     clearInterval(game_logic_loop)
-}
-
-export function startSecondCounter() {
-    self.second_counter=setInterval(function () {
-        addSecondsElapsed(1)
-    },1000)
-}
-
-export function clearSecondCounter() {
-    clearInterval(self.second_counter)
 }
 
 export function startLoadingInterval() {
@@ -136,16 +130,8 @@ export function getGameSpace() {
     return self.$gamespace
 }
 
-export function setGameSpaceHeight(gamespace_height) {
-    self.gamespace_height = gamespace_height
-}
-
 export function getGameSpaceHeight() {
     return self.gamespace_height
-}
-
-export function setGameSpaceWidth(gamespace_width) {
-    self.gamespace_width = gamespace_width
 }
 
 export function getGameSpaceWidth() {
@@ -220,6 +206,8 @@ export function updateScoreLabel() {
     self.$score_label.text("Score: "+getShip().score)
 }
 
+//Pause overlay parts
+
 export function setPauseScreen($pause_screen) {
     self.$pause_screen=$pause_screen
 }
@@ -227,6 +215,8 @@ export function setPauseScreen($pause_screen) {
 export function getPauseScreen() {
     return self.$pause_screen
 }
+
+//Loading overlay parts
 
 export function setLoadingIcon($loading_icon) {
     self.$loading_icon=$loading_icon
@@ -242,6 +232,60 @@ export function setLoadingOverlay($loading_overlay) {
 
 export function getLoadingOverlay() {
     return self.$loading_overlay
+}
+
+//Score system parts
+
+export function setScoreInfoLabel($score_info_label) {
+    self.$score_info_label=$score_info_label
+}
+
+export function getScoreInfoLabel() {
+    return self.$score_info_label
+}
+
+export function setScoreSaveButton($score_save_button) {
+    self.$score_save_button=$score_save_button
+}
+
+export function getScoreSaveButton() {
+    return self.$score_save_button
+}
+
+export function setScoreNameInput($score_name_input) {
+    self.$score_name_input=$score_name_input
+}
+
+export function getScoreNameInput() {
+    return self.$score_name_input
+}
+
+export function setScoreSystem($score_system) {
+    self.$score_system=$score_system
+}
+
+export function getScoreSystem() {
+    return self.$score_system
+}
+
+//Score table parts
+
+export function setScoreTable($score_table) {
+    self.$score_table=$score_table
+}
+
+export function getScoreTable() {
+    return self.$score_table
+}
+
+//Score placeholder
+
+export function setScorePlaceholder($score_placeholder) {
+    self.$score_placeholder=$score_placeholder
+}
+
+export function getScorePlaceholder() {
+    return self.$score_placeholder
 }
 
 
@@ -262,8 +306,10 @@ function moveProjectiles() {
 function moveAsteroids() {
     getAsteroids().forEach(function (current_asteroid) {
         let sign = current_asteroid.rotationspeed<0 ? "-=" : "+="
-        $(current_asteroid.$asteroid).animate({rotate: sign+Math.abs(current_asteroid.rotationspeed)+"deg"},1, "linear")
-        $(current_asteroid.$asteroid).css( {top: "+="+current_asteroid.fallspeed})
+        $(current_asteroid.$asteroid).animate({
+            rotate: sign+Math.abs(current_asteroid.rotationspeed)+"deg",
+            top: "+="+current_asteroid.fallspeed+"px"
+        },1, "linear")
         if (parseInt($(current_asteroid.$asteroid).css("top")) >= getGameSpaceHeight()) {
             $(current_asteroid.$asteroid).remove()
             getAsteroids().splice(current_asteroid.index, 1)
@@ -298,7 +344,6 @@ function detect_projectile_hit() {
                 parseInt($(current_asteroid.$asteroid).css("left"))+parseInt($(current_asteroid.$asteroid).css("width"))/2,
                 parseInt($(current_asteroid.$asteroid).css("top"))+parseInt($(current_asteroid.$asteroid).css("height"))/2
             ]
-            //console.log(asteroidpos)
 
             let shotposl=[
                 parseInt($(current_projectile).css("left")),
@@ -351,6 +396,9 @@ function detect_spaceshit_hit() {
 
 //asteroid functions
 
+const base_asteroid_spawn=3000
+const base_asteroid_speed=1
+
 export function spawn_asteroid() {
     let rotation=Math.random()-0.5
     if (rotation<=0) {
@@ -361,7 +409,7 @@ export function spawn_asteroid() {
 
     let spawned_asteroid = new Asteroid(
         Math.random(),
-        0.25+Math.min(getSecondsElapsed(), 200)*0.0025,
+        base_asteroid_speed+scaleAsteroidSpeed(),
         rotation,
         getAsteroids().length
     );
@@ -369,7 +417,7 @@ export function spawn_asteroid() {
     addAsteroid(spawned_asteroid)
     getAsteroidDiv().append($(spawned_asteroid.$asteroid))
     setTimeSinceLastAsteroidSpawn(0)
-    setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,getSecondsElapsed())*4))
+    setAsteroidSpawner(setTimeout(spawn_asteroid,base_asteroid_spawn-scaleAsteroidSpawn()))
 }
 
 export function updateAnimationTimes(time) {
@@ -381,12 +429,23 @@ export function updateAnimationTimes(time) {
     }
 }
 
+function scaleAsteroidSpawn() {
+    const max_second_scaling=200
+    const scale_per_second=4
+    return Math.min(max_second_scaling,getSecondsElapsed()/1000)*scale_per_second
+}
+
+function scaleAsteroidSpeed() {
+    const max_second_scaling=200
+    const scale_per_second=0.0125
+    return Math.min(max_second_scaling,getSecondsElapsed()/1000)*scale_per_second
+}
+
 //pause unpause
 
 export function pauseGame() {
     clearTimeout(getAsteroidSpawner())
     clearGameLogicLoop()
-    clearSecondCounter()
     getAsteroids().forEach(element => {
         $(element.$asteroid).stop(true)
     })
@@ -406,9 +465,9 @@ export function pauseGame() {
 }
 
 export function unpauseGame() {
-    setAsteroidSpawner(setTimeout(spawn_asteroid,2000-Math.min(200,seconds_elapsed)*4-time_since_last_spawn))
+    setAsteroidSpawner(setTimeout(spawn_asteroid,base_asteroid_spawn-scaleAsteroidSpawn()-getTimeSinceLastAsteroidSpawn()))
+
     startGameLogicLoop()
-    startSecondCounter()
     getShip().enableShipEventhandlers()
     getDestroyedAsteroids().forEach(element => {
         element.continueAsteroidDestroyAnimation()
@@ -438,6 +497,13 @@ export function togglePauseWithoutAnimations() {
     }
 }
 
+export function pauseWithoutAnimations() {
+    if (!isPaused()) {
+        setPaused(true)
+        pauseGame()
+    }
+}
+
 export function setUpAfterStartGame() {
     getStartGameLabel().remove()
     $(getPauseButton()).on('click', togglePause)
@@ -453,9 +519,10 @@ export function finishLoading() {
 }
 
 export function restartGame() {
-    $(getRestartOverlay()).hide()
+    getRestartOverlay().hide()
+    getScoreSystem().hide()
+    getShipHpBox().show()
     clearGameLogicLoop()
-    clearSecondCounter()
     clearTimeout(getAsteroidSpawner())
     setSecondsElapsed(0)
     setTimeSinceLastAsteroidSpawn(0)
@@ -464,13 +531,13 @@ export function restartGame() {
     updateScoreLabel()
 
     getAsteroids().forEach(element => {
-        $(element.$asteroid).remove()
+        element.$asteroid.remove()
     })
     getAsteroids().splice(0,getAsteroids().length)
 
     getDestroyedAsteroids().forEach(element => {
         clearTimeout(element.animtimeout)
-        $(element.$asteroid).remove()
+        element.$asteroid.remove()
     })
     getDestroyedAsteroids().splice(0,getDestroyedAsteroids().length)
 
@@ -481,6 +548,36 @@ export function restartGame() {
     $(getShip().$ship).on('load', loadShip)
     $(getPauseButton()).on("click", togglePause).show()
     togglePauseWithoutAnimations()
+}
 
-    //getPauseScreen().show()
+export function saveScore() {
+    if (getScoreNameInput().val()!==""/*&& getShip().score>0*/) {
+        animateButton(getScoreSaveButton())
+
+        let name = getScoreNameInput().val()
+        let score=getShip().score
+        if (localStorage.getItem(name)!=null) {
+            localStorage.setItem(name, localStorage.getItem(name)+";"+score);
+        } else {
+            localStorage.setItem(name, score);
+        }
+
+        updateScoreTable(name, score)
+
+        getScoreSaveButton().off("click")
+        getScoreNameInput().prop({
+            "disabled": true
+        })
+    }
+}
+
+export function resetSaveSystem() {
+    getScoreNameInput().prop({
+        "disabled": false
+    })
+}
+
+export function updateScoreTable(name, score) {
+    getScorePlaceholder().remove()
+    getScoreTable().append("<tr><td>"+name+"</td><td>"+score+"</td></tr>")
 }
