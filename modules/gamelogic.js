@@ -445,7 +445,7 @@ function scaleAsteroidSpawn() {
 }
 
 function scaleAsteroidSpeed() {
-    const max_second_scaling=200
+    const max_second_scaling=100
     const scale_per_second=0.01
     return Math.min(max_second_scaling,getMiliSecondsElapsed()/1000)*scale_per_second
 }
