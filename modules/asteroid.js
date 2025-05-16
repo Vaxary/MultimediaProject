@@ -12,7 +12,7 @@ export class Asteroid {
         this.current_destroyed_animtime=0
         this._$asteroid=cloneAsteroid()
         this.animtimeout=0
-        this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.mp3");
+        this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.wav");
         this.index=index
         if (size <= 0.2) {
             this._hp=4
