@@ -266,32 +266,43 @@ body {
     right: 10px;
 }
 
-#scoretable {
-    border-collapse: collapse;
-}
+
 
 #scoretablebox {
     position: absolute;
     right: 10px;
     top: 140px;
-    background-color: rgb(159, 159, 159);
     color: white;
     height: auto;
 }
 
 #scoretableheader th {
-    width: 200px;
+    background-color: rgb(81, 81, 81);
+    font-size: 16pt;
 }
 
-#scoretable th:nth-child(odd), td:nth-child(odd) {
-    border-right: 1px solid black;
+#scoretable {
+    border-collapse: collapse;
+    background-color: rgb(159, 159, 159);
+    border-radius: 10px;
+}
+
+#scoreboardlabel th{
+    border-radius: 10px 10px 0 0;
+    background-color: rgb(81, 81, 81);
+    width: 400px;
+    font-size: 20pt;
+}
+
+.namecol {
+    border-right: 1px solid rgb(74, 74, 74);
+}
+
+#scoreplaceholder td{
+    border: none;
 }
 
 #scoretable td {
     padding-left: 20px;
-    border-top: 1px solid black;
-}
-
-#scoreplaceholder {
-    border-right: 0;
+    border-top: 1px solid rgb(74, 74, 74);
 }

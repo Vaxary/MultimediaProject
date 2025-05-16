@@ -107,7 +107,7 @@ export function initScoreTable() {
             empty=false
             let scores=localStorage.getItem(player).split(";")
             for (let score in scores)
-            getScoreTable().append("<tr><td>"+player+"</td><td>"+scores[score]+"</td></tr>")
+            getScoreTable().append("<tr><td class='namecol'>"+player+"</td><td>"+scores[score]+"</td></tr>")
         }
     }
     if (!empty) {

@@ -579,5 +579,5 @@ export function resetSaveSystem() {
 
 export function updateScoreTable(name, score) {
     getScorePlaceholder().remove()
-    getScoreTable().append("<tr><td>"+name+"</td><td>"+score+"</td></tr>")
+    getScoreTable().append("<tr><td class='namecol'>"+name+"</td><td>"+score+"</td></tr>")
 }
