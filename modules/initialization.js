@@ -39,8 +39,8 @@ import {
 export function initialization() {
     initRestartOverlay()
     initPauseButton()
-    init_projectile()
-    init_meteorite()
+    initProjectile()
+    initAsteroid()
     initShipStates()
     initShipHpBox()
     initStartGameLabel()
@@ -166,7 +166,7 @@ function initRestartLabel() {
     })
 }
 
-function init_projectile() {
+function initProjectile() {
     setProjWidth(8);
     setProjHeight(24);
     setProjTop(getGameSpaceHeight()-getShip().height-50);
@@ -206,7 +206,7 @@ function initShipStates() {
     setDestroyedShipFrame([getDestroyedShipFrame(12),100],12)
 }
 
-function init_meteorite() {
+function initAsteroid() {
     $(getAsteroidBase()).css({
         top: -100,
         left: 100,
