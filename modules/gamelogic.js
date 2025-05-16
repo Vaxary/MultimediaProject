@@ -427,8 +427,6 @@ export function spawn_asteroid() {
     getAsteroidDiv().append($(spawned_asteroid.$asteroid))
     setTimeSinceLastAsteroidSpawn(0)
     setAsteroidSpawner(setTimeout(spawn_asteroid,base_asteroid_spawn-scaleAsteroidSpawn()))
-    console.log(base_asteroid_spawn-scaleAsteroidSpawn())
-    console.log(getMiliSecondsElapsed())
 }
 
 export function updateAnimationTimes(time) {
