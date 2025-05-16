@@ -10,28 +10,26 @@ import {
     getShipHpIndicatorImg, initializeShip
 } from "./ship.js";
 import {loadShip} from "./initialization.js";
-self.seconds_elapsed=0
+self.miliseconds_elapsed=0
 self.time_since_last_spawn=0
 self.pause_button_img=[]
 self.paused=true
 
-
-
-
+const game_update_time=10
 
 export function startGameLogicLoop() {
     self.game_logic_loop=setInterval(function () {
-        moveProjectiles()
-        moveAsteroids()
-        rotateDestroyedAsteroids()
-        detect_projectile_hit()
+        moveProjectiles(game_update_time)
+        moveAsteroids(game_update_time)
+        rotateDestroyedAsteroids(game_update_time)
+        detectProjectileHit()
         if (!getShip.shielded) {
-            detect_spaceshit_hit()
+            detectSpaceshipHit()
         }
-        updateAnimationTimes(1)
-        addTimeSinceLastAsteroidSpawn(1)
-        addSecondsElapsed(1)
-    },1)
+        updateAnimationTimes(game_update_time)
+        addTimeSinceLastAsteroidSpawn(game_update_time)
+        addMiliSecondsElapsed(game_update_time)
+    },game_update_time)
 }
 
 export function clearGameLogicLoop() {
@@ -56,16 +54,16 @@ export function setPaused(paused) {
     self.paused=paused
 }
 
-export function setSecondsElapsed(seconds_elapsed) {
-    self.seconds_elapsed=seconds_elapsed
+export function setMiliSecondsElapsed(miliseconds_elapsed) {
+    self.miliseconds_elapsed=miliseconds_elapsed
 }
 
-export function getSecondsElapsed() {
-    return self.seconds_elapsed
+export function getMiliSecondsElapsed() {
+    return self.miliseconds_elapsed
 }
 
-export function addSecondsElapsed(time) {
-    self.seconds_elapsed+=time
+export function addMiliSecondsElapsed(time) {
+    self.miliseconds_elapsed+=time
 }
 
 export function setTimeSinceLastAsteroidSpawn(time_since_last_spawn) {
@@ -291,11 +289,15 @@ export function getScorePlaceholder() {
 
 //actual functions
 //moving stuff
-function moveProjectiles() {
+function moveProjectiles(time) {
+    let speed=20*time/10
     $(".projectile").each(function () {
         $(this).animate({
-            top: "-=10"
-        }, 1)
+            top: "-="+speed
+        }, time, "linear")
+            .animate({
+            top: "-="+speed
+        }, time, "linear")
         if (parseInt($(this).css("top")) <= -20) {
             $(this).remove()
         }
@@ -303,13 +305,16 @@ function moveProjectiles() {
     })
 }
 
-function moveAsteroids() {
+function moveAsteroids(time) {
     getAsteroids().forEach(function (current_asteroid) {
         let sign = current_asteroid.rotationspeed<0 ? "-=" : "+="
         $(current_asteroid.$asteroid).animate({
-            rotate: sign+Math.abs(current_asteroid.rotationspeed)+"deg",
-            top: "+="+current_asteroid.fallspeed+"px"
-        },1, "linear")
+            rotate: sign+String(Math.abs(current_asteroid.rotationspeed*time/5))+"deg",
+            top: "+="+String(current_asteroid.fallspeed*time/5)+"px"
+        },time, "linear").animate({
+            rotate: sign+String(Math.abs(current_asteroid.rotationspeed*time/5))+"deg",
+            top: "+="+String(current_asteroid.fallspeed*time/5)+"px"
+        },time, "linear")
         if (parseInt($(current_asteroid.$asteroid).css("top")) >= getGameSpaceHeight()) {
             $(current_asteroid.$asteroid).remove()
             getAsteroids().splice(current_asteroid.index, 1)
@@ -319,10 +324,14 @@ function moveAsteroids() {
     })
 }
 
-function rotateDestroyedAsteroids() {
+function rotateDestroyedAsteroids(time) {
     getDestroyedAsteroids().forEach(function (current_destroyed_asteroid) {
         let sign = current_destroyed_asteroid.rotationspeed<0 ? "-=" : "+="
-        $(current_destroyed_asteroid.$asteroid).animate({rotate: sign+Math.abs(current_destroyed_asteroid.rotationspeed)+"deg"},1, "linear")
+        $(current_destroyed_asteroid.$asteroid).animate({
+            rotate: sign+String(Math.abs(current_destroyed_asteroid.rotationspeed*time/5))+"deg"
+        },time, "linear").animate({
+            rotate: sign+String(Math.abs(current_destroyed_asteroid.rotationspeed*time/5))+"deg"
+        },time, "linear")
     })
 }
 
@@ -336,7 +345,7 @@ export function calculate_distance(pos1, pos2) {
 }
 
 
-function detect_projectile_hit() {
+function detectProjectileHit() {
     $(".projectile").each( function (p_index, current_projectile) {
         getAsteroids().forEach(function (current_asteroid) {
 
@@ -361,7 +370,7 @@ function detect_projectile_hit() {
     })
 }
 
-function detect_spaceshit_hit() {
+function detectSpaceshipHit() {
     if (!getShip().shielded) {
         getAsteroids().forEach(asteroid=>{
             let asteroidradius=parseInt($(asteroid.$asteroid).css("width"))/2
@@ -396,8 +405,8 @@ function detect_spaceshit_hit() {
 
 //asteroid functions
 
-const base_asteroid_spawn=3000
-const base_asteroid_speed=1
+const base_asteroid_spawn=2400
+const base_asteroid_speed=0.8
 
 export function spawn_asteroid() {
     let rotation=Math.random()-0.5
@@ -418,6 +427,8 @@ export function spawn_asteroid() {
     getAsteroidDiv().append($(spawned_asteroid.$asteroid))
     setTimeSinceLastAsteroidSpawn(0)
     setAsteroidSpawner(setTimeout(spawn_asteroid,base_asteroid_spawn-scaleAsteroidSpawn()))
+    console.log(base_asteroid_spawn-scaleAsteroidSpawn())
+    console.log(getMiliSecondsElapsed())
 }
 
 export function updateAnimationTimes(time) {
@@ -431,14 +442,14 @@ export function updateAnimationTimes(time) {
 
 function scaleAsteroidSpawn() {
     const max_second_scaling=200
-    const scale_per_second=4
-    return Math.min(max_second_scaling,getSecondsElapsed()/1000)*scale_per_second
+    const scale_per_second=6
+    return Math.min(max_second_scaling,getMiliSecondsElapsed()/1000)*scale_per_second
 }
 
 function scaleAsteroidSpeed() {
     const max_second_scaling=200
-    const scale_per_second=0.0125
-    return Math.min(max_second_scaling,getSecondsElapsed()/1000)*scale_per_second
+    const scale_per_second=0.01
+    return Math.min(max_second_scaling,getMiliSecondsElapsed()/1000)*scale_per_second
 }
 
 //pause unpause
@@ -524,7 +535,7 @@ export function restartGame() {
     getShipHpBox().show()
     clearGameLogicLoop()
     clearTimeout(getAsteroidSpawner())
-    setSecondsElapsed(0)
+    setMiliSecondsElapsed(0)
     setTimeSinceLastAsteroidSpawn(0)
     initializeShip()
     refillShipHpBox()

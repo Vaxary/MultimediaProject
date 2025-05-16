@@ -136,7 +136,7 @@ export class Asteroid {
         $(current.$asteroid).attr({
             src: destroyed_asteroid_frames[current.current_destroyed_animframe][0].src
         })
-        if (current.current_destroyed_animframe===destroyed_asteroid_frames.length-1) {
+        if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
                 $(current.$asteroid).remove()
@@ -155,7 +155,7 @@ export class Asteroid {
 
     continueAsteroidDestroyAnimation() {
         let current=this
-        if (current.current_destroyed_animframe===destroyed_asteroid_frames.length-1) {
+        if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
                 $(current.$asteroid).remove()
