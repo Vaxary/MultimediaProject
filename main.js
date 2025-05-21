@@ -23,7 +23,13 @@ import {
     setScoreSaveButton,
     setScoreInfoLabel,
     setScoreSystem,
-    pauseWithoutAnimations, setScoreTable, setScorePlaceholder
+    pauseWithoutAnimations,
+    setScoreTable,
+    setScorePlaceholder,
+    getSoundSlider,
+    setSoundIcon,
+    getSoundIcon,
+    setSavedSound, getSoundIconMuted, setSoundIconMuted, getSavedSound
 } from "./modules/gamelogic.js";
 import {
     getShip,
@@ -36,6 +42,41 @@ import {setProjectileBase} from "./modules/projectile.js";
 $(function () {
     setScoreTable($("#scoretable"))
     setScorePlaceholder($("#scoreplaceholder"))
+    setSoundSlider($("#soundslider"))
+    setSoundIcon($("#soundicon"))
+    getSoundSlider().on("input",function () {
+        let val=parseInt(this.value)
+        if (val === 0) {
+            setSoundIconMuted(true)
+            getSoundIcon().attr({src: "assets/audiomute.png"})
+        } else if (val<=33) {
+            setSoundIconMuted(false)
+            getSoundIcon().attr({src: "assets/audiolow.png"})
+        } else if (val<=66) {
+            setSoundIconMuted(false)
+            getSoundIcon().attr({src: "assets/audiomedium.png"})
+        } else {
+            setSoundIconMuted(false)
+            getSoundIcon().attr({src: "assets/audiohigh.png"})
+        }
+    })
+    getSoundSlider().trigger("input")
+
+    getSoundIcon().on("click", function () {
+        if (getSoundIconMuted()) {
+            setSoundIconMuted(false)
+            getSoundSlider().val(getSavedSound())
+        } else {
+            setSavedSound(getSoundSlider().val())
+            getSoundSlider().val(0)
+            setSoundIconMuted(true)
+        }
+        getSoundSlider().trigger("input")
+    })
+
+
+
+
     initScoreTable()
     setGameSpace($("#gamespace"))
     setLoadingIcon($("#loadingicon"))
@@ -47,7 +88,6 @@ $(function () {
     setScoreLabel($("#scorelabel"))
     setPauseButton($("#pausebutton"))
     setPauseScreen($("#pausescreen"))
-    setSoundSlider($("#soundslider"))
     setStartGameLabel($("#startgamelabel"))
 
     setScoreSystem($("#savescoresystem"))

@@ -12,6 +12,7 @@ import {
 import {loadShip} from "./initialization.js";
 self.miliseconds_elapsed=0
 self.time_since_last_spawn=0
+self.saved_sound=50
 self.pause_button_img=[]
 self.paused=true
 
@@ -142,6 +143,30 @@ export function setSoundSlider($sound_slider) {
 
 export function getSoundSlider() {
     return self.$sound_slider
+}
+
+export function setSoundIcon($sound_icon) {
+    self.$sound_icon=$sound_icon
+}
+
+export function getSoundIcon() {
+    return $sound_icon
+}
+
+export function setSoundIconMuted(sound_icon_mute) {
+    self.sound_icon_mute=sound_icon_mute
+}
+
+export function getSoundIconMuted() {
+    return sound_icon_mute
+}
+
+export function setSavedSound(saved_sound) {
+    self.saved_sound=saved_sound
+}
+
+export function getSavedSound() {
+    return saved_sound
 }
 
 export function setPauseButton($pause_button) {
