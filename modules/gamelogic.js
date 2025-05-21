@@ -1,6 +1,6 @@
 import {
     addAsteroid,
-    Asteroid, getAsteroidDiv,
+    Asteroid,
     getAsteroids,
     getDestroyedAsteroids
 } from "./asteroid.js";
@@ -25,6 +25,7 @@ import {
     togglePause, togglePauseWithoutAnimations,
     updateScoreLabel
 } from "./uilogic.js";
+import {getHitMarks, getProjectiles} from "./projectile.js";
 self.miliseconds_elapsed=0
 self.time_since_last_spawn=0
 self.saved_sound=50
@@ -36,6 +37,7 @@ const game_update_time=10
 export function startGameLogicLoop() {
     self.game_logic_loop=setInterval(function () {
         moveProjectiles(game_update_time)
+        moveHitmarks(game_update_time)
         moveAsteroids(game_update_time)
         rotateDestroyedAsteroids(game_update_time)
         detectProjectileHit()
@@ -123,18 +125,29 @@ export function getGameSpaceWidth() {
 //moving stuff
 function moveProjectiles(time) {
     let speed=20*time/10
-    $(".projectile").each(function () {
-        $(this).animate({
+    getProjectiles().forEach(function (current_projectile) {
+        //console.log( $(current_projectile.$projectile).css("top"))
+        $(current_projectile.$projectile).animate({
+            top: "-="+speed
+        }, time, "linear").animate({
             top: "-="+speed
         }, time, "linear")
-            .animate({
-            top: "-="+speed
-        }, time, "linear")
-        if (parseInt($(this).css("top")) <= -20) {
-            $(this).remove()
+        if (parseInt($(current_projectile.$projectile).css("top")) <= -20) {
+            current_projectile.remove()
         }
-
     })
+}
+
+function moveHitmarks(time) {
+    getHitMarks().forEach(function (current_hitmark) {
+        let speed=current_hitmark.markspeed*time/5
+        $(current_hitmark.$projectile).animate({
+            top: "+="+String(speed)+"px"
+        },time, "linear").animate({
+            top: "+="+String(speed)+"px"
+        },time, "linear")
+    })
+
 }
 
 function moveAsteroids(time) {
@@ -148,9 +161,7 @@ function moveAsteroids(time) {
             top: "+="+String(current_asteroid.fallspeed*time/5)+"px"
         },time, "linear")
         if (parseInt($(current_asteroid.$asteroid).css("top")) >= getGameSpaceHeight()) {
-            $(current_asteroid.$asteroid).remove()
-            getAsteroids().splice(current_asteroid.index, 1)
-            current_asteroid.updateAsteroidArrayIndexes()
+            current_asteroid.remove()
             //getShip().registerPlanetHit()
         }
     })
@@ -174,7 +185,7 @@ export function calculate_distance(pos1, pos2) {
 
 
 function detectProjectileHit() {
-    $(".projectile").each( function (p_index, current_projectile) {
+    getProjectiles().forEach( function (current_projectile) {
         getAsteroids().forEach(function (current_asteroid) {
 
             let asteroidpos=[
@@ -183,12 +194,12 @@ function detectProjectileHit() {
             ]
 
             let shotposl=[
-                parseInt($(current_projectile).css("left")),
-                parseInt($(current_projectile).css("top"))
+                parseInt($(current_projectile.$projectile).css("left")),
+                parseInt($(current_projectile.$projectile).css("top"))
             ]
             let shotposr=[
-                parseInt($(current_projectile).css("left"))+parseInt($(current_projectile).css("width")),
-                parseInt($(current_projectile).css("top"))
+                parseInt($(current_projectile.$projectile).css("left"))+parseInt($(current_projectile.$projectile).css("width")),
+                parseInt($(current_projectile.$projectile).css("top"))
             ]
             if (calculate_distance(asteroidpos, shotposl) <= Math.pow(parseInt($(current_asteroid.$asteroid).css("width"))/2,2) ||
                 calculate_distance(asteroidpos, shotposr) <= Math.pow(parseInt($(current_asteroid.$asteroid).css("width"))/2,2)) {
@@ -252,7 +263,6 @@ export function spawn_asteroid() {
     );
 
     addAsteroid(spawned_asteroid)
-    getAsteroidDiv().append($(spawned_asteroid.$asteroid))
     setTimeSinceLastAsteroidSpawn(0)
     setAsteroidSpawner(setTimeout(spawn_asteroid,base_asteroid_spawn-scaleAsteroidSpawn()))
 }
@@ -341,9 +351,10 @@ export function restartGame() {
     })
     getDestroyedAsteroids().splice(0,getDestroyedAsteroids().length)
 
-    $(".projectile").each(function () {
-        $(this).remove()
+    getProjectiles().forEach(element => {
+        element.$projectile.remove()
     })
+    getProjectiles().splice(0,getProjectiles().length)
 
     $(getShip().$ship).on('load', loadShip)
     $(getPauseButton()).on("click", togglePause).show()

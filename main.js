@@ -62,7 +62,7 @@ $(function () {
     setShipHpBox($("#shiphpbox"))
 
 
-    setProjectileBase($("<img src='assets/spaceshipprojectile.png' alt='player spaceship projectile' class='projectile'>"))
+    setProjectileBase($("<img src='assets/projectile1.png' alt='player spaceship projectile' class='projectile'>"))
     setAsteroidBase($("<img src='assets/asteroid1.png' alt='asteroid' class='asteroid'>"))
 
     initializeShip()

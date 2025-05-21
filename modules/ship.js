@@ -3,11 +3,10 @@ import {
     getGameSpace,
     getGameSpaceHeight,
     getGameSpaceWidth,
-    getShotsDiv,
     resetSaveSystem,
     restartGame, saveScore
 } from "./gamelogic.js";
-import {cloneProjectile, getProjWidth} from "./projectile.js";
+import {addProjectile, getProjWidth, Projectile} from "./projectile.js";
 import {
     getPauseButton,
     getRestartButton, getRestartOverlay,
@@ -26,7 +25,7 @@ export class Ship {
         this.hp=3
         //this.planethp=10
         this.score=0
-        this.debuging_hitbox=false
+        this.debug_mode=false
         this.shielded=false
         this.hit=false
         this.pos=0
@@ -38,7 +37,8 @@ export class Ship {
         this.animframe=0
         this.animtime=0
         this.animtimeout=0
-        if (this.debuging_hitbox) {
+        this.lvl=0
+        if (this.debug_mode) {
             this.setupDebugHitboxes()
         }
     }
@@ -86,6 +86,10 @@ export class Ship {
                         getShip().shootProjectile()
                     }, 125)
                 }
+            }
+            if (event.which===2 && getShip().debug_mode) {
+                getShip().lvl+=1
+                getShip().lvl%=3
             }
         });
         $(window).on('keydown', function (event) {
@@ -162,7 +166,7 @@ export class Ship {
             }, self.destroyed_ship_frames[fromframe][1])
         } else {
             this.$ship.attr({src: self.destroyed_ship_frames[fromframe][0].src})
-            if (this.debuging_hitbox) {
+            if (this.debug_mode) {
                 this.deleteDebugHitboxes()
             }
             setTimeout(getShip().destroyShip, self.destroyed_ship_frames[fromframe][1])
@@ -181,9 +185,20 @@ export class Ship {
             audio.volume=getSoundSlider().val()/100
             //console.log(audio.volume)
             audio.playbackRate=1.5
-            getShotsDiv().append($(cloneProjectile()).css({
-                left: Math.ceil(getShip().pos+getShip().width/2-getProjWidth()/2)
-            }))
+            let pos=Math.ceil(getShip().pos+getShip().width/2-getProjWidth()/2)
+
+            switch (this.lvl) {
+                case 0:
+                    addProjectile(new Projectile(pos))
+                    break
+                case 1:
+                    addProjectile(new Projectile(pos))
+                    break
+                case 2:
+                    addProjectile(new Projectile(pos+10))
+                    addProjectile(new Projectile(pos-10))
+            }
+
             audio.play()
         }
     }
@@ -234,7 +249,7 @@ export class Ship {
             left: rel_mouse_pos_x
         })
         this.pos=rel_mouse_pos_x
-        if (this.debuging_hitbox) {
+        if (this.debug_mode) {
             this.moveDebugHitboxes()
         }
 
@@ -282,6 +297,10 @@ export class Ship {
 
     addScore(score) {
         this.score+=score
+    }
+
+    levelUp() {
+        this.lvl+=1
     }
 }
 

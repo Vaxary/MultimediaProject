@@ -7,13 +7,12 @@ self.asteroids=[]
 self.destroyed_asteroids=[]
 
 export class Asteroid {
-    constructor(size, fallspeed, rotationspeed, index) {
+    constructor(size, fallspeed, rotationspeed) {
         this.current_destroyed_animframe=0
         this.current_destroyed_animtime=0
         this._$asteroid=cloneAsteroid()
         this.animtimeout=0
         this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.wav");
-        this.index=index
         if (size <= 0.2) {
             this._hp=4
             this._score=2
@@ -74,8 +73,14 @@ export class Asteroid {
     }
 
     registerHit(projectile) {
-        this._hp-=1
-        $(projectile).remove()
+        this._hp-=projectile.damage
+        if (this._hp>0) {
+            projectile.changeToHit(this)
+        } else {
+            projectile.remove()
+        }
+
+        projectile.startHitAnimation()
         this.updateAsteroidState()
     }
 
@@ -88,14 +93,11 @@ export class Asteroid {
     }
 
     updateAsteroidState() {
-        if (this.hp===0) {
+        if (this.hp<=0) {
             getShip().addScore(this.score)
             updateScoreLabel()
-            $(this.$asteroid).removeClass("asteroid")
-            $(this.$asteroid).addClass("explosion")
-            getAsteroids().splice(this.index, 1)
-            this.updateAsteroidArrayIndexes()
-            this.index=getDestroyedAsteroids().length
+            this.changeToDestroyed()
+
             this.asteroid_destroyed_sound.volume=getSoundSlider().val()/100
             this.asteroid_destroyed_sound.play()
             getDestroyedAsteroids().push(this)
@@ -139,11 +141,7 @@ export class Asteroid {
         if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
-                $(current.$asteroid).remove()
-                for (let i = this.index; i < destroyed_asteroids.length; i++) {
-                    destroyed_asteroids[i].index=i
-                }
-                destroyed_asteroids.splice(this.index, 1)
+                current.removeDestroyed()
             }, destroyed_asteroid_frames[current.current_destroyed_animframe][1])
 
         } else {
@@ -158,11 +156,7 @@ export class Asteroid {
         if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
-                $(current.$asteroid).remove()
-                for (let i = this.index; i < destroyed_asteroids.length; i++) {
-                    destroyed_asteroids[i].index=i
-                }
-                destroyed_asteroids.splice(this.index, 1)
+                current.removeDestroyed()
             }, destroyed_asteroid_frames[current.current_destroyed_animframe][1]-current.current_destroyed_animtime)
 
         } else {
@@ -172,10 +166,20 @@ export class Asteroid {
         }
     }
 
-    updateAsteroidArrayIndexes() {
-        for (let i = this.index; i < getAsteroids().length; i++) {
-            getAsteroid(i).index=i
-        }
+    remove() {
+        $(this.$asteroid).remove()
+        asteroids.splice(asteroids.indexOf(this), 1)
+    }
+
+    removeDestroyed() {
+        $(this.$asteroid).remove()
+        destroyed_asteroids.splice(destroyed_asteroids.indexOf(this), 1)
+    }
+
+    changeToDestroyed() {
+        $(this.$asteroid).removeClass("asteroid")
+        $(this.$asteroid).addClass("explosion")
+        getAsteroids().splice(getAsteroids().indexOf(this), 1)
     }
 }
 
@@ -200,6 +204,7 @@ export function getAsteroidBase() {
 
 export function addAsteroid(asteroid) {
     asteroids.push(asteroid)
+    getAsteroidDiv().append($(asteroid.$asteroid))
 }
 
 export function getAsteroids() {

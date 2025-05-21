@@ -12,7 +12,7 @@ import {
     getProjectileBase,
     getProjHeight, setProjWidth,
     getProjTop, setProjTop,
-    getProjWidth, setProjHeight,
+    getProjWidth, setProjHeight, addProjectileHitFrame, addProjectileImg,
 } from "./projectile.js";
 import {
     addAsteroidStateFrame,
@@ -170,8 +170,22 @@ function initProjectile() {
     setProjTop(getGameSpaceHeight()-getShip().height-50);
     $(getProjectileBase()).css({
         top: getProjTop(),
-        height: getProjHeight(),
-        width: getProjWidth()})
+        width: getProjWidth(),
+        height: getProjHeight()
+    })
+
+    let frames=[20,20,20,30]
+    for (let i = 1; i <= 4; i++) {
+        let projectile_hit_frame=new Image()
+        projectile_hit_frame.src="../assets/projectilehit"+i+".png"
+        addProjectileHitFrame([projectile_hit_frame, frames[i-1]])
+    }
+
+    for (let i = 1; i <= 2; i++) {
+        let bullet=new Image()
+        bullet.src="../assets/projectile"+i+".png"
+        addProjectileImg(bullet)
+    }
 }
 
 function initShipStates() {
