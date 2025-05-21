@@ -1,6 +1,6 @@
-import {getGameSpaceWidth, getSoundSlider, updateScoreLabel} from "./gamelogic.js";
+import {getGameSpaceWidth} from "./gamelogic.js";
 import {getShip} from "./ship.js";
-
+import {getSoundSlider, updateScoreLabel} from "./uilogic.js"
 self.destroyed_asteroid_frames=[]
 self.asteroid_states=[]
 self.asteroids=[]
@@ -177,6 +177,13 @@ export class Asteroid {
             getAsteroid(i).index=i
         }
     }
+}
+
+export function setAsteroidDiv($asteroiddiv) {
+    self.$asteroiddiv=$asteroiddiv
+}
+export function getAsteroidDiv() {
+    return self.$asteroiddiv
 }
 
 export function cloneAsteroid(){

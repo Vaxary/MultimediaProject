@@ -1,15 +1,30 @@
 import {
     addAsteroid,
-    Asteroid,
+    Asteroid, getAsteroidDiv,
     getAsteroids,
     getDestroyedAsteroids
 } from "./asteroid.js";
 import {
     getShip,
-    getShipHpIndicatorIcon,
-    getShipHpIndicatorImg, initializeShip
+    initializeShip
 } from "./ship.js";
 import {loadShip} from "./initialization.js";
+import {
+    getLoadingIcon,
+    getPauseButton,
+    getPauseButtonImg,
+    getPauseScreen,
+    getRestartOverlay,
+    getScoreLabel,
+    getScoreNameInput, getScorePlaceholder,
+    getScoreSaveButton,
+    getScoreSystem, getScoreTable,
+    getShipHpBox,
+    getStartGameLabel,
+    refillShipHpBox,
+    togglePause, togglePauseWithoutAnimations,
+    updateScoreLabel
+} from "./uilogic.js";
 self.miliseconds_elapsed=0
 self.time_since_last_spawn=0
 self.saved_sound=50
@@ -39,20 +54,12 @@ export function clearGameLogicLoop() {
 
 export function startLoadingInterval() {
     self.$loader=setInterval(function () {
-        getLoadingIcon().animate({rotate: "+=10deg"},20)
+        getLoadingIcon().animate({rotate: "+=10deg"},20,"linear")
     },5)
 }
 
 export function clearLoadingInterval() {
     clearInterval(self.$loader)
-}
-
-export function isPaused() {
-    return self.paused
-}
-
-export function setPaused(paused) {
-    self.paused=paused
 }
 
 export function setMiliSecondsElapsed(miliseconds_elapsed) {
@@ -94,31 +101,6 @@ export function getShotsDiv() {
     return self.$shotsdiv
 }
 
-export function setAsteroidDiv($asteroiddiv) {
-    self.$asteroiddiv=$asteroiddiv
-}
-export function getAsteroidDiv() {
-    return self.$asteroiddiv
-}
-
-export function setShipHpBox($ship_hpbox) {
-    self.$ship_hpbox=$ship_hpbox
-}
-
-export function getShipHpBox() {
-    return self.$ship_hpbox
-}
-
-export function updateShipHpBox() {
-    getShipHpIndicatorIcon(getShip().hp).attr({src:getShipHpIndicatorImg(0).src}).animate({scale: 0.5},50).animate({scale: 1.2},75).animate({scale: 1},75)
-}
-
-export function refillShipHpBox() {
-    for (let i = 0; i < getShip().hp; i++) {
-        getShipHpIndicatorIcon(i).attr({src:getShipHpIndicatorImg(1).src})
-    }
-}
-
 export function setGameSpace($gamespace) {
     self.$gamespace = $gamespace
     self.gamespace_width=$gamespace.width()
@@ -136,181 +118,6 @@ export function getGameSpaceHeight() {
 export function getGameSpaceWidth() {
     return self.gamespace_width
 }
-
-export function setSoundSlider($sound_slider) {
-    self.$sound_slider=$sound_slider
-}
-
-export function getSoundSlider() {
-    return self.$sound_slider
-}
-
-export function setSoundIcon($sound_icon) {
-    self.$sound_icon=$sound_icon
-}
-
-export function getSoundIcon() {
-    return $sound_icon
-}
-
-export function setSoundIconMuted(sound_icon_mute) {
-    self.sound_icon_mute=sound_icon_mute
-}
-
-export function getSoundIconMuted() {
-    return sound_icon_mute
-}
-
-export function setSavedSound(saved_sound) {
-    self.saved_sound=saved_sound
-}
-
-export function getSavedSound() {
-    return saved_sound
-}
-
-export function setPauseButton($pause_button) {
-    self.$pause_button=$pause_button
-}
-
-export function getPauseButton() {
-    return self.$pause_button
-}
-
-export function setRestartOverlay($restart_overlay) {
-    self.$restart_overlay=$restart_overlay
-}
-
-export function getRestartOverlay() {
-    return $restart_overlay
-}
-
-export function setRestartButton($restart_button) {
-    self.$restart_button=$restart_button
-}
-
-export function getRestartButton() {
-    return self.$restart_button
-}
-
-export function setRestartLabel($restart_label) {
-    return self.$restart_label=$restart_label
-}
-
-export function getRestartLabel() {
-    return self.$restart_label
-}
-
-export function setStartGameLabel($startgame_label) {
-    return self.$startgame_label=$startgame_label
-}
-
-export function getStartGameLabel() {
-    return self.$startgame_label
-}
-
-export function addPauseButtonImg(pause_button_img) {
-    self.pause_button_img.push(pause_button_img)
-}
-
-export function getPauseButtonImg(i) {
-    return self.pause_button_img[i]
-}
-
-export function setScoreLabel($score_label) {
-    self.$score_label=$score_label
-}
-
-export function getScoreLabel() {
-    return self.$score_label
-}
-
-export function updateScoreLabel() {
-    self.$score_label.text("Score: "+getShip().score)
-}
-
-//Pause overlay parts
-
-export function setPauseScreen($pause_screen) {
-    self.$pause_screen=$pause_screen
-}
-
-export function getPauseScreen() {
-    return self.$pause_screen
-}
-
-//Loading overlay parts
-
-export function setLoadingIcon($loading_icon) {
-    self.$loading_icon=$loading_icon
-}
-
-export function getLoadingIcon() {
-    return self.$loading_icon
-}
-
-export function setLoadingOverlay($loading_overlay) {
-    self.$loading_overlay=$loading_overlay
-}
-
-export function getLoadingOverlay() {
-    return self.$loading_overlay
-}
-
-//Score system parts
-
-export function setScoreInfoLabel($score_info_label) {
-    self.$score_info_label=$score_info_label
-}
-
-export function getScoreInfoLabel() {
-    return self.$score_info_label
-}
-
-export function setScoreSaveButton($score_save_button) {
-    self.$score_save_button=$score_save_button
-}
-
-export function getScoreSaveButton() {
-    return self.$score_save_button
-}
-
-export function setScoreNameInput($score_name_input) {
-    self.$score_name_input=$score_name_input
-}
-
-export function getScoreNameInput() {
-    return self.$score_name_input
-}
-
-export function setScoreSystem($score_system) {
-    self.$score_system=$score_system
-}
-
-export function getScoreSystem() {
-    return self.$score_system
-}
-
-//Score table parts
-
-export function setScoreTable($score_table) {
-    self.$score_table=$score_table
-}
-
-export function getScoreTable() {
-    return self.$score_table
-}
-
-//Score placeholder
-
-export function setScorePlaceholder($score_placeholder) {
-    self.$score_placeholder=$score_placeholder
-}
-
-export function getScorePlaceholder() {
-    return self.$score_placeholder
-}
-
 
 //actual functions
 //moving stuff
@@ -358,10 +165,6 @@ function rotateDestroyedAsteroids(time) {
             rotate: sign+String(Math.abs(current_destroyed_asteroid.rotationspeed*time/5))+"deg"
         },time, "linear")
     })
-}
-
-export function animateButton($button) {
-    $($button).animate({scale: 1.25},75).animate({scale: 1},75)
 }
 
 //hit detection
@@ -493,8 +296,8 @@ export function pauseGame() {
     clearTimeout(getShip().animtimeout)
     getShip().disableShipEventhandlers()
     getPauseScreen().show()
-    $(getPauseButton()).css({
-        "background-image": "url("+getPauseButtonImg(1).src+")"
+    $(getPauseButton()).attr({
+        src: getPauseButtonImg(1).src
     })
 }
 
@@ -510,46 +313,9 @@ export function unpauseGame() {
         getShip().continueShipHitAnimation()
     }
     getPauseScreen().hide()
-    $(getPauseButton()).css({
-        "background-image": "url("+getPauseButtonImg(0).src+")",
+    $(getPauseButton()).attr({
+        src: getPauseButtonImg(0).src
     })
-}
-
-export function togglePause() {
-    togglePauseWithoutAnimations()
-    $(getPauseButton()).stop(true)
-    animateButton(getPauseButton())
-}
-
-export function togglePauseWithoutAnimations() {
-    if (!isPaused()) {
-        setPaused(true)
-        pauseGame()
-    } else {
-        setPaused(false)
-        unpauseGame()
-    }
-}
-
-export function pauseWithoutAnimations() {
-    if (!isPaused()) {
-        setPaused(true)
-        pauseGame()
-    }
-}
-
-export function setUpAfterStartGame() {
-    getStartGameLabel().remove()
-    $(getPauseButton()).on('click', togglePause)
-    $(getPauseButton()).css({left: '', top: ''})
-    $(getShipHpBox()).show()
-    $(getScoreLabel()).show()
-}
-
-export function finishLoading() {
-    getStartGameLabel().show()
-    clearLoadingInterval()
-    getLoadingOverlay().remove()
 }
 
 export function restartGame() {
@@ -605,6 +371,11 @@ export function saveScore() {
     }
 }
 
+export function animateButton($button) {
+    $($button).stop(true)
+    $($button).animate({scale: 1.25},75).animate({scale: 1},75)
+}
+
 export function resetSaveSystem() {
     getScoreNameInput().prop({
         "disabled": false
@@ -614,4 +385,12 @@ export function resetSaveSystem() {
 export function updateScoreTable(name, score) {
     getScorePlaceholder().remove()
     getScoreTable().append("<tr><td class='namecol'>"+name+"</td><td>"+score+"</td></tr>")
+}
+
+export function setUpAfterStartGame() {
+    getStartGameLabel().remove()
+    $(getPauseButton()).on('click', togglePause)
+    $(getPauseButton()).css({left: '', top: ''})
+    $(getShipHpBox()).show()
+    $(getScoreLabel()).show()
 }

@@ -1,50 +1,51 @@
 import {
-    addDestroyedShipFrame, addShipHpIndicatorIcon,
+    addDestroyedShipFrame,
+    addShipHpIndicatorIcon, setShipHpIndicatorImgs,
     addShipState,
-    getDestroyedShipFrame,
     getShip,
-    setDestroyedShipFrame, setShipHpIndicatorImgs
 } from "./ship.js";
 import {
-    addPauseButtonImg,
-    finishLoading,
-    getGameSpaceHeight,
-    getGameSpaceWidth,
-    getPauseButton,
-    getPauseButtonImg,
-    getRestartButton,
-    getRestartLabel,
-    getScoreInfoLabel,
-    getScoreNameInput, getScorePlaceholder,
-    getScoreSaveButton, getScoreTable,
-    getShipHpBox,
-    getStartGameLabel
+    animateButton,
+    getGameSpaceHeight, getGameSpaceWidth,
 } from "./gamelogic.js";
 import {
     getProjectileBase,
-    getProjHeight,
-    getProjTop,
-    getProjWidth,
-    setProjHeight,
-    setProjTop,
-    setProjWidth
+    getProjHeight, setProjWidth,
+    getProjTop, setProjTop,
+    getProjWidth, setProjHeight,
 } from "./projectile.js";
 import {
     addAsteroidStateFrame,
     addDestroyedAsteroidFrame,
-    getAsteroidBase, getDestroyedAsteroidStateFrame,
-    replaceDestroyedAsteroidFrame
+    getAsteroidBase,
 } from "./asteroid.js";
+import {
+    addPauseButtonImg,
+    getPauseButton,
+    getPauseButtonImg,
+    getRestartButton,
+    getRestartLabel, getSavedSound,
+    getScoreInfoLabel,
+    getScoreNameInput, getScorePlaceholder,
+    getScoreSaveButton, getScoreTable,
+    getShipHpBox, getSoundIcon, getSoundMuted, getSoundSlider,
+    getStartGameLabel, setSavedSound, setSoundMuted,
+    finishLoading,
+} from "./uilogic.js"
 
 export function initialization() {
-    initRestartOverlay()
-    initPauseButton()
     initProjectile()
     initAsteroid()
     initShipStates()
     initShipHpBox()
+}
+
+export function initializeui() {
+    initRestartOverlay()
+    initPauseButton()
     initStartGameLabel()
     initScoreSaveSystem()
+    initSoundSlider()
 }
 
 export function loadShip() {
@@ -150,10 +151,7 @@ function initRestartOverlay() {
 }
 
 function initRestartButton() {
-    let restart_button=new Image()
-    restart_button.src = "../assets/restartbutton.png"
     $(getRestartButton()).css({
-        "background-image": "url("+restart_button.src+")",
         scale: 1,
         left: getGameSpaceWidth()/2-30,
         top: getGameSpaceHeight()/2-30
@@ -186,27 +184,17 @@ function initShipStates() {
     let ship_shielded=new Image()
     ship_shielded.src="../assets/spaceshipshielded.png"
     addShipState(ship_shielded)
+
+    let frametimes=[120,80,60,40,40,40,40,40,40,40,50,70,100]
     for (let i = 1; i <= 13; i++) {
         let destroyed_ship_frame = new Image()
         destroyed_ship_frame.src="../assets/spaceshipdestroyed"+i+".png"
-        addDestroyedShipFrame(destroyed_ship_frame)
+        addDestroyedShipFrame([destroyed_ship_frame,frametimes[i-1]])
     }
-    setDestroyedShipFrame([getDestroyedShipFrame(0),120],0)
-    setDestroyedShipFrame([getDestroyedShipFrame(1),80],1)
-    setDestroyedShipFrame([getDestroyedShipFrame(2),60],2)
-    setDestroyedShipFrame([getDestroyedShipFrame(3),40],3)
-    setDestroyedShipFrame([getDestroyedShipFrame(4),40],4)
-    setDestroyedShipFrame([getDestroyedShipFrame(5),40],5)
-    setDestroyedShipFrame([getDestroyedShipFrame(6),40],6)
-    setDestroyedShipFrame([getDestroyedShipFrame(7),40],7)
-    setDestroyedShipFrame([getDestroyedShipFrame(8),40],8)
-    setDestroyedShipFrame([getDestroyedShipFrame(9),40],9)
-    setDestroyedShipFrame([getDestroyedShipFrame(10),50],10)
-    setDestroyedShipFrame([getDestroyedShipFrame(11),70],11)
-    setDestroyedShipFrame([getDestroyedShipFrame(12),100],12)
 }
 
 function initAsteroid() {
+
     $(getAsteroidBase()).css({
         top: -100,
         left: 100,
@@ -219,17 +207,43 @@ function initAsteroid() {
         addAsteroidStateFrame(frame)
     }
 
-    for (let i=1; i <= 8; i++) {
+    let frametimes=[50,40,30,30,30,40,40,50]
+    for (let i=1; i <= frametimes.length; i++) {
         let frame=new Image()
         frame.src="../assets/asteroid_destroyed"+i+".png"
-        addDestroyedAsteroidFrame(frame)
+        addDestroyedAsteroidFrame([frame,frametimes[i-1]])
     }
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(0),50],0)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(1),40],1)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(2),30],2)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(3),30],3)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(4),30],4)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(5),40],5)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(6),40],6)
-    replaceDestroyedAsteroidFrame([getDestroyedAsteroidStateFrame(7),50],7)
+}
+
+function initSoundSlider() {
+    getSoundSlider().on("input",function () {
+        let val=parseInt(this.value)
+        if (val === 0) {
+            setSoundMuted(true)
+            getSoundIcon().attr({src: "assets/audiomute.png"})
+        } else if (val<=33) {
+            setSoundMuted(false)
+            getSoundIcon().attr({src: "assets/audiolow.png"})
+        } else if (val<=66) {
+            setSoundMuted(false)
+            getSoundIcon().attr({src: "assets/audiomedium.png"})
+        } else {
+            setSoundMuted(false)
+            getSoundIcon().attr({src: "assets/audiohigh.png"})
+        }
+    })
+    getSoundSlider().trigger("input")
+
+    getSoundIcon().on("click", function () {
+        if (getSoundMuted()) {
+            setSoundMuted(false)
+            getSoundSlider().val(getSavedSound())
+        } else {
+            setSavedSound(getSoundSlider().val())
+            getSoundSlider().val(0)
+            setSoundMuted(true)
+        }
+        getSoundSlider().trigger("input")
+        animateButton(getSoundIcon())
+    })
 }

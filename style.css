@@ -110,7 +110,6 @@ body {
     left: 10px;
     transition: scale 0.2s;
     transition-delay: 0.2s;
-    background-image: url("assets/helpbutton.png");
     z-index: 0;
 
     position: absolute;
@@ -223,11 +222,16 @@ body {
 #soundsliderbox {
     width: auto;
     height: auto;
-    display: inline-block;
+    display: flex;
     position: absolute;
+    align-items: center;
     top: 90px;
     right: 20px;
     image-rendering: pixelated;
+}
+
+#soundsliderlabel {
+    display: none;
 }
 
 .soundslider {
@@ -236,8 +240,10 @@ body {
 }
 
 #soundicon {
+    scale: 1;
     cursor: pointer;
-    scale: 2;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     margin-right: 20px;
 }
@@ -253,8 +259,6 @@ body {
 }
 
 #savescorebutton {
-
-    background-image: url("assets/savebutton.png");
     position: absolute;
     z-index: 4;
 }

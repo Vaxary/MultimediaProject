@@ -3,15 +3,19 @@ import {
     getGameSpace,
     getGameSpaceHeight,
     getGameSpaceWidth,
-    getPauseButton,
-    getRestartButton,
-    getRestartOverlay, getScoreSaveButton, getScoreSystem, getShipHpBox,
-    getShotsDiv, getSoundSlider, pauseWithoutAnimations, resetSaveSystem,
-    restartGame, saveScore,
-    updateShipHpBox
+    getShotsDiv,
+    resetSaveSystem,
+    restartGame, saveScore
 } from "./gamelogic.js";
 import {cloneProjectile, getProjWidth} from "./projectile.js";
-
+import {
+    getPauseButton,
+    getRestartButton, getRestartOverlay,
+    getScoreSaveButton, getScoreSystem,
+    getShipHpBox,
+    getSoundSlider, pauseWithoutAnimations,
+    updateShipHpBox
+} from "./uilogic.js"
 self.ship_states=[]
 self.destroyed_ship_frames=[]
 self.ship_hp_indicator_icons=[]

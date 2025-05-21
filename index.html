@@ -7,27 +7,29 @@
     <script src="main.js" type="module"></script>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <div id="helppart">
-    <div id="helpbutton" class="circularbutton"></div>
-        <span class="helptext">
-            Hold <img class="helpimg" src="assets/mouseleftclick.png" alt="left mouse button"> or <img class="helpimg" src="assets/spacebutton.png" alt="spacebar"> to shoot projectiles <img class="helpprojimg" src="assets/spaceshipprojectile.png" alt="projectile"> at asteroids <img src="assets/asteroid1.png" alt="asteroid" class="helphpimg">
-            <br><br>Move the <img src="assets/spaceship.png" alt="spaceship" class="helphpimg"> with <img class="helpimg" src="assets/mousemove.png" alt="mouse">
-            <br><br>Press the <img src="assets/pausebutton1.png" alt="pausebutton" class="helpimg">/<img src="assets/pausebutton2.png" alt="unpausebutton" class="helpimg"> buttons in the top left corner to pause/unpause the game
-            <br><br>The <img src="assets/spaceship.png" alt="spaceship" class="helphpimg"> icons on the right indicate your health, after hits they will become depleted <img src="assets/spaceshipdepleted.png" alt="spaceship depleted" class="helphpimg">. If you run out of them the game is over
-            <br><br>The asteroids <img src="assets/asteroid1.png" alt="asteroid" class="helphpimg"> have various sizes. Bigger ones have more health, but give more points to your score
-            <br><br>After an asteroid hits you, you'll have a brief period of invulnerability indicated with <img src="assets/spaceshipshielded.png" alt="shielded ship" class="helphpimg">
-        </span>
-    </div>
+    <img id="helpbutton" class="circularbutton" src="assets/helpbutton.png" alt="help button">
+    <span class="helptext">
+        Hold <img class="helpimg" src="assets/mouseleftclick.png" alt="left mouse button"> or <img class="helpimg" src="assets/spacebutton.png" alt="spacebar"> to shoot projectiles <img class="helpprojimg" src="assets/spaceshipprojectile.png" alt="projectile"> at asteroids <img src="assets/asteroid1.png" alt="asteroid" class="helphpimg">
+        <br><br>Move the <img src="assets/spaceship.png" alt="spaceship" class="helphpimg"> with <img class="helpimg" src="assets/mousemove.png" alt="mouse">
+        <br><br>Press the <img src="assets/pausebutton1.png" alt="pausebutton" class="helpimg">/<img src="assets/pausebutton2.png" alt="unpausebutton" class="helpimg"> buttons in the top left corner to pause/unpause the game
+        <br><br>The <img src="assets/spaceship.png" alt="spaceship" class="helphpimg"> icons on the right indicate your health, after hits they will become depleted <img src="assets/spaceshipdepleted.png" alt="spaceship depleted" class="helphpimg">. If you run out of them the game is over
+        <br><br>The asteroids <img src="assets/asteroid1.png" alt="asteroid" class="helphpimg"> have various sizes. Bigger ones have more health, but give more points to your score
+        <br><br>After an asteroid hits you, you'll have a brief period of invulnerability indicated with <img src="assets/spaceshipshielded.png" alt="shielded ship" class="helphpimg">
+    </span>
+</div>
 <div id="gamespace">
     <div id="loadingoverlay">
         <img id="loadingicon" src="assets/restartbutton.png" alt="loading icon">
     </div>
 
-    <div id="pausebutton" class="circularbutton"></div>
+    <img id="pausebutton" class="circularbutton" src="assets/pausebutton2.png" alt="pause/start button">
 
     <div id="savescoresystem">
-        <div id="savescorebutton" class="circularbutton"></div>
+        <img id="savescorebutton" class="circularbutton" alt="save score button" src="assets/savebutton.png">
         <label><input type="text" placeholder="Enter your name" id="nameinput"></label>
         <div id="scoreinfo">
             <p>Save your score</p>
@@ -44,16 +46,18 @@
     <div id="pausescreen"></div>
     <div id="restartoverlay">
         <p id="restartlabel">Restart Game</p>
-        <div id="restartbutton" class="circularbutton"></div>
+        <img id="restartbutton" class="circularbutton" alt="restart button" src="assets/restartbutton.png">
     </div>
     <div id="shots"></div>
     <div id="asteroids"></div>
 </div>
+
 <p id="neptun">Név: Kelemen Bálint Péter<br>
     Neptun kód: HF9N28</p>
 <div id="soundsliderbox">
-    <img src="assets/audiohigh.png" alt="audio icon" id="soundicon"><label><input type="range" min="0" max="100" value="50" id="soundslider"></label>
+    <img src="assets/audioempty.png" alt="audio icon" id="soundicon"><label id="soundsliderlabel" for="soundslider"></label><input type="range" min="0" max="100" value="50" id="soundslider">
 </div>
+
 <div id="scoretablebox">
     <table id="scoretable">
         <tr id="scoreboardlabel">
@@ -66,5 +70,6 @@
         <tr id="scoreplaceholder"><td colspan="2">No scores yet</td></tr>
     </table>
 </div>
+
 </body>
 </html>
