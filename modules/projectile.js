@@ -3,7 +3,6 @@ import {getShip} from "./ship.js";
 
 self.projectile_imgs=[]
 self.projectiles=[]
-self.hitmarks=[]
 self.projectile_hit_frames=[]
 
 export class Projectile {
@@ -14,6 +13,7 @@ export class Projectile {
         this.current_hit_animtime=0
         this.animtimeout=0
         this._markspeed=0
+        this.asteroid=0
         switch (getShip().lvl) {
             case 0:
                 this.damage=1
@@ -51,7 +51,11 @@ export class Projectile {
 
     removeHit() {
         $(this.$projectile).remove()
-        getHitMarks().splice(getHitMarks().indexOf(this),1)
+        this.asteroid.hitmarkers.splice(this.asteroid.hitmarkers.indexOf(this),1)
+    }
+
+    addAnimationTime(time) {
+        this.current_hit_animtime+=time
     }
 
     changeToHit(asteroid) {
@@ -59,6 +63,7 @@ export class Projectile {
         $(this.$projectile).removeClass("projectile")
         $(this.$projectile).addClass("hitmark")
         $(this.$projectile).stop(true)
+        this.asteroid=asteroid
 
         let asteroid_center=[
             parseInt($(asteroid.$asteroid).css("left"))+parseInt($(asteroid.$asteroid).css("width"))/2,
@@ -75,41 +80,28 @@ export class Projectile {
             top: top+asteroid_center[1],
             left: "-="+(size-parseInt($(this.$projectile).width()))/2
         })
-        addHitMark(this)
+        this.asteroid.addHitmarker(this)
     }
 
-    startHitAnimation(fromframe=0) {
+    startHitAnimation(fromframe=0,docontinue=false) {
         let current=this
-        current.current_hit_animframe=fromframe
-        current.current_hit_animtime=0
-        $(current.$projectile).attr({
-            src: getProjectileHitFrames()[current.current_hit_animframe][0].src
-        })
+        if (!docontinue) {
+            current.current_hit_animframe=fromframe
+            current.current_hit_animtime=0
+            $(current.$projectile).attr({
+                src: getProjectileHitFrames()[current.current_hit_animframe][0].src
+            })
+        }
         if (current.current_hit_animframe===getProjectileHitFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
                 current.removeHit()
-            }, getProjectileHitFrames()[current.current_hit_animframe][1])
+            }, getProjectileHitFrames()[current.current_hit_animframe][1]-current.current_hit_animtime)
 
         } else {
             this.animtimeout=setTimeout(function () {
                 current.startHitAnimation(current.current_hit_animframe+1)
-            }, getProjectileHitFrames()[current.current_hit_animframe][1])
-        }
-    }
-
-    continueHitAnimation() {
-        let current=this
-        if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
-            current.animtimeout=setTimeout(function () {
-
-                current.removeDestroyed()
-            }, destroyed_asteroid_frames[current.current_destroyed_animframe][1]-current.current_destroyed_animtime)
-
-        } else {
-            this.animtimeout=setTimeout(function () {
-                current.startAsteroidDestroyAnimation(current.current_destroyed_animframe+1)
-            }, destroyed_asteroid_frames[current.current_destroyed_animframe][1]-current.current_destroyed_animtime)
+            }, getProjectileHitFrames()[current.current_hit_animframe][1]-current.current_hit_animtime)
         }
     }
 }
@@ -140,15 +132,6 @@ export function addProjectile(projectile) {
     self.projectiles.unshift(projectile)
     getShotsDiv().append(projectile.$projectile)
 }
-
-export function getHitMarks() {
-    return self.hitmarks
-}
-
-export function addHitMark(hitmark) {
-    self.hitmarks.unshift(hitmark)
-}
-
 
 export function cloneProjectile() {
     return $(self.projectile_base)[0].cloneNode(true)

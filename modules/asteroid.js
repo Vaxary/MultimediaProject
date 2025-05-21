@@ -10,6 +10,7 @@ export class Asteroid {
     constructor(size, fallspeed, rotationspeed) {
         this.current_destroyed_animframe=0
         this.current_destroyed_animtime=0
+        this._hitmarkers=[]
         this._$asteroid=cloneAsteroid()
         this.animtimeout=0
         this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.wav");
@@ -51,6 +52,13 @@ export class Asteroid {
         this._rotationspeed = rotationspeed;
     }
 
+    get hitmarkers() {
+        return this._hitmarkers;
+    }
+
+    addHitmarker(hitmarker) {
+        this._hitmarkers.unshift(hitmarker);
+    }
 
     get $asteroid() {
         return this._$asteroid;
@@ -74,12 +82,7 @@ export class Asteroid {
 
     registerHit(projectile) {
         this._hp-=projectile.damage
-        if (this._hp>0) {
-            projectile.changeToHit(this)
-        } else {
-            projectile.remove()
-        }
-
+        projectile.changeToHit(this)
         projectile.startHitAnimation()
         this.updateAsteroidState()
     }
@@ -92,6 +95,33 @@ export class Asteroid {
         return this.current_destroyed_animtime
     }
 
+    removeMarkers() {
+        this.hitmarkers.forEach(function (current_marker) {
+            clearTimeout(current_marker.animtimeout)
+            $(current_marker.$projectile).remove()
+        })
+        this.hitmarkers.splice(0,this.hitmarkers.length)
+    }
+
+    updateMarkerTimes(time) {
+        this.hitmarkers.forEach(function (current_marker) {
+            current_marker.addAnimationTime(time)
+        })
+    }
+
+    stopMarkers() {
+        this.hitmarkers.forEach(function (current_marker) {
+            clearTimeout(current_marker.animtimeout)
+            $(current_marker.$projectile).stop(true)
+        })
+    }
+
+    startMarkers() {
+        this.hitmarkers.forEach(function (current_marker) {
+            current_marker.startHitAnimation(current_marker.current_hit_animframe, true)
+        })
+    }
+
     updateAsteroidState() {
         if (this.hp<=0) {
             getShip().addScore(this.score)
@@ -102,7 +132,10 @@ export class Asteroid {
             this.asteroid_destroyed_sound.play()
             getDestroyedAsteroids().push(this)
 
+            this.removeMarkers()
+
             $(this.$asteroid).stop(true)
+
             this.startAsteroidDestroyAnimation()
         } else if (this.hp<=2) {
             $(this.$asteroid).attr({
@@ -131,28 +164,17 @@ export class Asteroid {
         }
     }
 
-    startAsteroidDestroyAnimation(fromframe=0) {
+    startAsteroidDestroyAnimation(fromframe=0, docontinue=false) {
         let current=this
-        current.current_destroyed_animframe=fromframe
-        current.current_destroyed_animtime=0
-        $(current.$asteroid).attr({
-            src: destroyed_asteroid_frames[current.current_destroyed_animframe][0].src
-        })
-        if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
-            current.animtimeout=setTimeout(function () {
 
-                current.removeDestroyed()
-            }, destroyed_asteroid_frames[current.current_destroyed_animframe][1])
-
-        } else {
-            this.animtimeout=setTimeout(function () {
-                current.startAsteroidDestroyAnimation(current.current_destroyed_animframe+1)
-            }, destroyed_asteroid_frames[current.current_destroyed_animframe][1])
+        if (!docontinue) {
+            current.current_destroyed_animframe=fromframe
+            current.current_destroyed_animtime=0
+            $(current.$asteroid).attr({
+                src: destroyed_asteroid_frames[current.current_destroyed_animframe][0].src
+            })
         }
-    }
 
-    continueAsteroidDestroyAnimation() {
-        let current=this
         if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
@@ -172,7 +194,9 @@ export class Asteroid {
     }
 
     removeDestroyed() {
+        let current=this
         $(this.$asteroid).remove()
+        current.hitmarkers.splice(0,current.hitmarkers.length)
         destroyed_asteroids.splice(destroyed_asteroids.indexOf(this), 1)
     }
 

@@ -25,7 +25,7 @@ import {
     togglePause, togglePauseWithoutAnimations,
     updateScoreLabel
 } from "./uilogic.js";
-import {getHitMarks, getProjectiles} from "./projectile.js";
+import {getProjectiles} from "./projectile.js";
 self.miliseconds_elapsed=0
 self.time_since_last_spawn=0
 self.saved_sound=50
@@ -37,7 +37,6 @@ const game_update_time=10
 export function startGameLogicLoop() {
     self.game_logic_loop=setInterval(function () {
         moveProjectiles(game_update_time)
-        moveHitmarks(game_update_time)
         moveAsteroids(game_update_time)
         rotateDestroyedAsteroids(game_update_time)
         detectProjectileHit()
@@ -138,29 +137,27 @@ function moveProjectiles(time) {
     })
 }
 
-function moveHitmarks(time) {
-    getHitMarks().forEach(function (current_hitmark) {
-        let speed=current_hitmark.markspeed*time/5
-        $(current_hitmark.$projectile).animate({
-            top: "+="+String(speed)+"px"
-        },time, "linear").animate({
-            top: "+="+String(speed)+"px"
-        },time, "linear")
-    })
-
-}
-
 function moveAsteroids(time) {
     getAsteroids().forEach(function (current_asteroid) {
         let sign = current_asteroid.rotationspeed<0 ? "-=" : "+="
+        let rotationspeed=current_asteroid.rotationspeed*time/5
+        let fallspeed=current_asteroid.fallspeed*time/5
         $(current_asteroid.$asteroid).animate({
-            rotate: sign+String(Math.abs(current_asteroid.rotationspeed*time/5))+"deg",
-            top: "+="+String(current_asteroid.fallspeed*time/5)+"px"
+            rotate: sign+String(Math.abs(rotationspeed))+"deg",
+            top: "+="+String(fallspeed)+"px"
         },time, "linear").animate({
-            rotate: sign+String(Math.abs(current_asteroid.rotationspeed*time/5))+"deg",
-            top: "+="+String(current_asteroid.fallspeed*time/5)+"px"
+            rotate: sign+String(Math.abs(rotationspeed))+"deg",
+            top: "+="+String(fallspeed)+"px"
         },time, "linear")
+        current_asteroid.hitmarkers.forEach(function (current_hitmark) {
+            $(current_hitmark.$projectile).animate({
+                top: "+="+String(fallspeed)+"px"
+            },time, "linear").animate({
+                top: "+="+String(fallspeed)+"px"
+            },time, "linear")
+        })
         if (parseInt($(current_asteroid.$asteroid).css("top")) >= getGameSpaceHeight()) {
+            current_asteroid.removeMarkers()
             current_asteroid.remove()
             //getShip().registerPlanetHit()
         }
@@ -270,6 +267,7 @@ export function spawn_asteroid() {
 export function updateAnimationTimes(time) {
     getDestroyedAsteroids().forEach(asteroid=>{
         asteroid.updateAsteroidDestroyedCurrentAnimtime(time)
+        asteroid.updateMarkerTimes(time)
     })
     if (getShip().shielded) {
         getShip().addAnimationTime(time)
@@ -295,13 +293,14 @@ export function pauseGame() {
     clearGameLogicLoop()
     getAsteroids().forEach(element => {
         $(element.$asteroid).stop(true)
+        element.stopMarkers()
     })
     getDestroyedAsteroids().forEach(element => {
         clearTimeout(element.animtimeout)
         $(element.$asteroid).stop(true)
     })
-    $(".projectile").each(function () {
-        $(this).stop(true)
+    getProjectiles().forEach(element=>  {
+        $(element.$projectile).stop(true)
     })
     clearTimeout(getShip().animtimeout)
     getShip().disableShipEventhandlers()
@@ -316,11 +315,15 @@ export function unpauseGame() {
 
     startGameLogicLoop()
     getShip().enableShipEventhandlers()
+    getAsteroids().forEach(element => {
+        element.startMarkers()
+    })
+
     getDestroyedAsteroids().forEach(element => {
-        element.continueAsteroidDestroyAnimation()
+        element.startAsteroidDestroyAnimation(element.current_destroyed_animframe,true)
     })
     if (getShip().shielded) {
-        getShip().continueShipHitAnimation()
+        getShip().startShipHitAnimation(getShip().animframe,true)
     }
     getPauseScreen().hide()
     $(getPauseButton()).attr({

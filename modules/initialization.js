@@ -174,7 +174,7 @@ function initProjectile() {
         height: getProjHeight()
     })
 
-    let frames=[20,20,20,30]
+    let frames=[30,30,30,30]
     for (let i = 1; i <= 4; i++) {
         let projectile_hit_frame=new Image()
         projectile_hit_frame.src="../assets/projectilehit"+i+".png"

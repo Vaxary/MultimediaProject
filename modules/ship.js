@@ -25,7 +25,7 @@ export class Ship {
         this.hp=3
         //this.planethp=10
         this.score=0
-        this.debug_mode=false
+        this.debug_mode=true
         this.shielded=false
         this.hit=false
         this.pos=0
@@ -124,29 +124,15 @@ export class Ship {
         clearInterval(getShip().shootinterval)
     }
 
-    startShipHitAnimation(fromframe=0) {
-        this.animframe=fromframe
-        this.animtime=0
+    startShipHitAnimation(fromframe=0, docontinue=false) {
+        if (!docontinue) {
+            this.animframe=fromframe
+            this.animtime=0
+        }
         if (fromframe < 10) {
             this.$ship.attr({src: self.ship_states[(fromframe+1)%2].src})
             this.animtimeout=setTimeout(function () {
                 getShip().startShipHitAnimation(fromframe+1)
-            }, 100)
-        } else {
-            this.hit=false
-            this.$ship.attr({src: self.ship_states[2].src})
-            this.animtimeout=setTimeout(function () {
-                getShip().$ship.attr({src: self.ship_states[0].src})
-                getShip().shielded=false
-            }, 4500)
-        }
-    }
-
-    continueShipHitAnimation() {
-        if (this.animframe < 10) {
-            this.$ship.attr({src: self.ship_states[(this.animframe+1)%2].src})
-            this.animtimeout=setTimeout(function () {
-                getShip().startShipHitAnimation(getShip().animframe+1)
             }, 100-getShip().animtime)
         } else {
             this.hit=false
