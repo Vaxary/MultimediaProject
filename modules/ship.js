@@ -18,14 +18,23 @@ import {
 self.ship_states=[]
 self.destroyed_ship_frames=[]
 self.ship_hp_indicator_icons=[]
+self.shootpatterns= [ //first num is offset from centre, second is type of bullet
+    [[0, 1]],
+    [[0, 2]],
+    [[-10, 1], [+10, 1]],
+    [[-10, 2], [+10, 2]],
+    [[-15, 1], [0, 2], [+15, 1]],
+    [[-25, 1], [-15, 1], [0, 2], [+15, 1], [+25, 1]],
+]
+
 
 export class Ship {
     constructor() {
         this.$ship=$("<img src='../assets/spaceship.png' alt='player spaceship' id='player'>")
-        this.hp=3
+        this.hp=1
         //this.planethp=10
         this.score=0
-        this.debug_mode=true
+        this.debug_mode=false
         this.shielded=false
         this.hit=false
         this.pos=0
@@ -89,18 +98,10 @@ export class Ship {
             }
             if (event.which===2 && getShip().debug_mode) {
                 getShip().lvl+=1
-                getShip().lvl%=3
+                getShip().lvl%=self.shootpatterns.length
             }
         });
-        $(window).on('keydown', function (event) {
-            if (parseInt(event.keyCode)===32) {
-                if (getShip().shootinterval===0) {
-                    getShip().shootinterval=setInterval(function () {
-                        getShip().shootProjectile()
-                    }, 125)
-                }
-            }
-        });
+        $(window).on('keydown', this.shootWithSpace);
         $(window).on('mouseup', function (event) {
             if (event.which===1) {
                 if (getShip().shootinterval !== 0) {
@@ -120,8 +121,19 @@ export class Ship {
     }
 
     disableShipEventhandlers() {
-        $(window).off('mousemove mousedown mouseup keydown keyup')
+        $(window).off('mousemove mousedown mouseup keyup')
+        $(window).off("keydown", this.shootWithSpace)
         clearInterval(getShip().shootinterval)
+    }
+
+    shootWithSpace(key) {
+        if (parseInt(key.keyCode)===32) {
+            if (getShip().shootinterval===0) {
+                getShip().shootinterval=setInterval(function () {
+                    getShip().shootProjectile()
+                }, 125)
+            }
+        }
     }
 
     startShipHitAnimation(fromframe=0, docontinue=false) {
@@ -173,42 +185,32 @@ export class Ship {
             audio.playbackRate=1.5
             let pos=Math.ceil(getShip().pos+getShip().width/2-getProjWidth()/2)
 
-            switch (this.lvl) {
-                case 0:
-                    addProjectile(new Projectile(pos))
-                    break
-                case 1:
-                    addProjectile(new Projectile(pos))
-                    break
-                case 2:
-                    addProjectile(new Projectile(pos+10))
-                    addProjectile(new Projectile(pos-10))
-            }
+            self.shootpatterns[this.lvl].forEach(pattern => {
+                addProjectile(new Projectile(pos+pattern[0], pattern[1]))
+            })
 
             audio.play()
         }
     }
 
     destroyShip() {
+        $(window).off("keydown")
         $(getPauseButton()).off("click")
         getShip().$ship.remove()
-        setTimeout(function () {
-            pauseWithoutAnimations()
-            resetSaveSystem()
-            getShipHpBox().hide()
+        pauseWithoutAnimations()
+        resetSaveSystem()
+        getShipHpBox().hide()
 
-            $(getScoreSystem()).show()
-            $(getScoreSaveButton()).on("click", saveScore)
+        $(getScoreSystem()).show()
+        $(getScoreSaveButton()).on("click", saveScore)
 
-            $(getRestartOverlay()).show()
-            $(getRestartButton()).on("click", function () {
-                animateButton(getRestartButton())
-                $(getRestartButton()).off("click")
-                $(getScoreSaveButton()).off("click")
-                setTimeout(restartGame, 200)
-            })
-        }, 1000)
-
+        $(getRestartOverlay()).show()
+        $(getRestartButton()).on("click", function () {
+            animateButton(getRestartButton())
+            $(getRestartButton()).off("click")
+            $(getScoreSaveButton()).off("click")
+            setTimeout(restartGame, 200)
+        })
     }
 
     register_ship_hit() {

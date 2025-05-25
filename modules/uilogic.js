@@ -2,7 +2,6 @@ import {getShip, getShipHpIndicatorIcon, getShipHpIndicatorImg} from "./ship.js"
 import {animateButton, clearLoadingInterval, pauseGame, unpauseGame} from "./gamelogic.js";
 
 self.saved_sound=50
-
 export function setShipHpBox($ship_hpbox) {
     self.$ship_hpbox=$ship_hpbox
 }
@@ -211,13 +210,14 @@ export function togglePause() {
 }
 
 export function togglePauseWithoutAnimations() {
-    if (!isPaused()) {
-        setPaused(true)
-        pauseGame()
-    } else {
-        setPaused(false)
-        unpauseGame()
-    }
+
+        if (!isPaused()) {
+            setPaused(true)
+            pauseGame()
+        } else {
+            setPaused(false)
+            unpauseGame()
+        }
 }
 
 export function pauseWithoutAnimations() {

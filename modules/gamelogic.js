@@ -19,7 +19,7 @@ import {
     getScoreNameInput, getScorePlaceholder,
     getScoreSaveButton,
     getScoreSystem, getScoreTable,
-    getShipHpBox,
+    getShipHpBox, getSoundSlider,
     getStartGameLabel,
     refillShipHpBox,
     togglePause, togglePauseWithoutAnimations,
@@ -31,7 +31,6 @@ self.time_since_last_spawn=0
 self.saved_sound=50
 self.pause_button_img=[]
 self.paused=true
-
 const game_update_time=10
 
 export function startGameLogicLoop() {
@@ -123,7 +122,7 @@ export function getGameSpaceWidth() {
 //actual functions
 //moving stuff
 function moveProjectiles(time) {
-    let speed=20*time/10
+    let speed=15*time/10
     getProjectiles().forEach(function (current_projectile) {
         //console.log( $(current_projectile.$projectile).css("top"))
         $(current_projectile.$projectile).animate({
@@ -232,6 +231,15 @@ function detectSpaceshipHit() {
             if (calculate_distance(asteroidpos, shipposleft) <= Math.pow(shipposleft[2]+asteroidradius,2) ||
                 calculate_distance(asteroidpos, shipposright) <= Math.pow(shipposright[2]+asteroidradius,2) ||
                 calculate_distance(asteroidpos, shippostop) <= Math.pow(shippostop[2]+asteroidradius,2)) {
+
+                asteroid.changeToDestroyed()
+                asteroid.asteroid_destroyed_sound.volume=getSoundSlider().val()/100
+                asteroid.asteroid_destroyed_sound.play()
+                getDestroyedAsteroids().push(asteroid)
+                asteroid.removeMarkers()
+                $(asteroid.$asteroid).stop(true)
+                asteroid.startAsteroidDestroyAnimation()
+
                 getShip().register_ship_hit()
             }
         })
@@ -332,6 +340,12 @@ export function unpauseGame() {
 }
 
 export function restartGame() {
+    $(window).on("keydown", function (key) {
+        if (key.code==="KeyP") {
+            togglePause()
+        }
+    })
+
     getRestartOverlay().hide()
     getScoreSystem().hide()
     getShipHpBox().show()
@@ -355,12 +369,16 @@ export function restartGame() {
     getDestroyedAsteroids().splice(0,getDestroyedAsteroids().length)
 
     getProjectiles().forEach(element => {
+        clearTimeout(element.animtimeout)
         element.$projectile.remove()
     })
     getProjectiles().splice(0,getProjectiles().length)
 
     $(getShip().$ship).on('load', loadShip)
     $(getPauseButton()).on("click", togglePause).show()
+
+
+
     togglePauseWithoutAnimations()
 }
 
@@ -404,6 +422,11 @@ export function updateScoreTable(name, score) {
 export function setUpAfterStartGame() {
     getStartGameLabel().remove()
     $(getPauseButton()).on('click', togglePause)
+    $(window).on("keydown", function (key) {
+        if (key.code==="KeyP") {
+            togglePause()
+        }
+    })
     $(getPauseButton()).css({left: '', top: ''})
     $(getShipHpBox()).show()
     $(getScoreLabel()).show()

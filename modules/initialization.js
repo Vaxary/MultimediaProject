@@ -175,7 +175,7 @@ function initProjectile() {
     })
 
     let frames=[30,30,30,30]
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= frames.length; i++) {
         let projectile_hit_frame=new Image()
         projectile_hit_frame.src="../assets/projectilehit"+i+".png"
         addProjectileHitFrame([projectile_hit_frame, frames[i-1]])
@@ -199,8 +199,8 @@ function initShipStates() {
     ship_shielded.src="../assets/spaceshipshielded.png"
     addShipState(ship_shielded)
 
-    let frametimes=[120,80,60,40,40,40,40,40,40,40,50,70,100]
-    for (let i = 1; i <= 13; i++) {
+    let frametimes=[120,80,60,40,40,40,40,40,40,40,50,70,100,500]
+    for (let i = 1; i <= frametimes.length; i++) {
         let destroyed_ship_frame = new Image()
         destroyed_ship_frame.src="../assets/spaceshipdestroyed"+i+".png"
         addDestroyedShipFrame([destroyed_ship_frame,frametimes[i-1]])
@@ -221,7 +221,7 @@ function initAsteroid() {
         addAsteroidStateFrame(frame)
     }
 
-    let frametimes=[50,40,30,30,30,40,40,50]
+    let frametimes=[50,40,30,30,30,40,40,50,250]
     for (let i=1; i <= frametimes.length; i++) {
         let frame=new Image()
         frame.src="../assets/asteroid_destroyed"+i+".png"

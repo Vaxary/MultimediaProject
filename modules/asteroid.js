@@ -14,6 +14,7 @@ export class Asteroid {
         this._$asteroid=cloneAsteroid()
         this.animtimeout=0
         this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.wav");
+
         if (size <= 0.2) {
             this._hp=4
             this._score=2
@@ -50,6 +51,7 @@ export class Asteroid {
         })
         this._fallspeed = fallspeed;
         this._rotationspeed = rotationspeed;
+        this.$score_earned_label=$("<div class='asteroidscorebox'><p class='asteroidscore'>+"+this.score+"</p></div>")[0].cloneNode(true)
     }
 
     get hitmarkers() {
@@ -136,6 +138,17 @@ export class Asteroid {
 
             $(this.$asteroid).stop(true)
 
+
+            $(this.$score_earned_label).css({
+                width: this.size,
+                height: this.size,
+                left: parseInt($(this.$asteroid).css("left")),
+                top: parseInt($(this.$asteroid).css("top")),
+                scale: this.size/40
+            })
+            getAsteroidDiv().append(this.$score_earned_label)
+
+
             this.startAsteroidDestroyAnimation()
         } else if (this.hp<=2) {
             $(this.$asteroid).attr({
@@ -178,6 +191,7 @@ export class Asteroid {
         if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
             current.animtimeout=setTimeout(function () {
 
+                current.$score_earned_label.remove()
                 current.removeDestroyed()
             }, destroyed_asteroid_frames[current.current_destroyed_animframe][1]-current.current_destroyed_animtime)
 

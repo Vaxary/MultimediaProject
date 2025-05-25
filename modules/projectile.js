@@ -1,12 +1,11 @@
 import {getShotsDiv} from "./gamelogic.js";
-import {getShip} from "./ship.js";
 
 self.projectile_imgs=[]
 self.projectiles=[]
 self.projectile_hit_frames=[]
 
 export class Projectile {
-    constructor(pos) {
+    constructor(pos, type) {
         this._$projectile=cloneProjectile()
         this.damage=0
         this.current_hit_animframe=0
@@ -14,18 +13,14 @@ export class Projectile {
         this.animtimeout=0
         this._markspeed=0
         this.asteroid=0
-        switch (getShip().lvl) {
-            case 0:
+        switch (type) {
+            case 1:
                 this.damage=1
                 $(this.$projectile).attr({src: getProjectileImg(0).src})
-                break
-            case 1:
-                this.damage=1.5
-                $(this.$projectile).attr({src: getProjectileImg(1).src})
                 break
             case 2:
-                this.damage=1
-                $(this.$projectile).attr({src: getProjectileImg(0).src})
+                this.damage=1.5
+                $(this.$projectile).attr({src: getProjectileImg(1).src})
                 break
         }
         this.pos=pos

@@ -30,6 +30,22 @@ body {
     position: absolute;
     z-index: 1;
 }
+
+.asteroidscorebox {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    z-index: 0;
+}
+
+.asteroidscorebox p {
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    width: 100%;
+    text-shadow: 0 0 5px black;
+}
+
 .explosion {
     position: absolute;
     z-index: 1;
