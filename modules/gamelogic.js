@@ -306,6 +306,7 @@ export function pauseGame() {
     getDestroyedAsteroids().forEach(element => {
         clearTimeout(element.animtimeout)
         $(element.$asteroid).stop(true)
+        $(element.$score_earned_label).stop(true)
     })
     getProjectiles().forEach(element=>  {
         $(element.$projectile).stop(true)

@@ -144,7 +144,8 @@ export class Asteroid {
                 height: this.size,
                 left: parseInt($(this.$asteroid).css("left")),
                 top: parseInt($(this.$asteroid).css("top")),
-                scale: this.size/40
+                scale: this.size/40,
+                opacity: 1
             })
             getAsteroidDiv().append(this.$score_earned_label)
 
@@ -187,8 +188,9 @@ export class Asteroid {
                 src: destroyed_asteroid_frames[current.current_destroyed_animframe][0].src
             })
         }
-
         if (current.current_destroyed_animframe===getDestroyedAsteroidStateFrames().length-1) {
+            let time=destroyed_asteroid_frames[current.current_destroyed_animframe][1]*$(current.$score_earned_label).css("opacity")
+            $(current.$score_earned_label).animate({opacity: "0", rotate: "90deg", scale: this.size/160}, time, "linear")
             current.animtimeout=setTimeout(function () {
 
                 current.$score_earned_label.remove()
