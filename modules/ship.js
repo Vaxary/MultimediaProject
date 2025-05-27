@@ -23,10 +23,7 @@ self.shootpatterns= [ //first num is offset from centre, second is type of bulle
     [[0, 2]],
     [[-10, 1], [+10, 1]],
     [[-10, 2], [+10, 2]],
-    [[-15, 1], [0, 2], [+15, 1]],
-    [[-25, 1], [-15, 1], [0, 2], [+15, 1], [+25, 1]],
 ]
-
 
 export class Ship {
     constructor() {
@@ -231,7 +228,8 @@ export class Ship {
     }
 
     move(e) {
-        let rel_mouse_pos_x = Math.ceil(e.clientX - self.$gamespace.offset().left - getShip().width / 2);
+        let scale=parseFloat(getGameSpace().css("scale"))
+        let rel_mouse_pos_x = Math.ceil(e.clientX - self.$gamespace.offset().left - getShip().width*scale / 2)/scale
         rel_mouse_pos_x = Math.min(Math.max(rel_mouse_pos_x, -getShip().width / 2 + 20), self.gamespace_width - getShip().width / 2 - 20);
         this.$ship.css({
             left: rel_mouse_pos_x
@@ -289,6 +287,25 @@ export class Ship {
 
     levelUp() {
         this.lvl+=1
+    }
+
+    getHitboxPositions() {
+        return {
+            "left" : [
+                this.pos+this.width/3.75,
+                this.top+this.height/7*5,
+                this.width/3.6
+            ],
+            "right" : [
+                this.pos+(this.width-this.width/3.75),
+                this.top+this.height/7*5,
+                this.width/3.6
+            ],
+            "middle" : [
+                this.pos+this.width/2,
+                this.top+this.height/4,
+                this.width/4
+            ]}
     }
 }
 
@@ -348,4 +365,8 @@ export function addDestroyedShipFrame(frame) {
 
 export function setDestroyedShipFrame(frame,i) {
     self.destroyed_ship_frames[i]=frame
+}
+
+export function getShootpatterLength() {
+    return self.shootpatterns.length-1
 }

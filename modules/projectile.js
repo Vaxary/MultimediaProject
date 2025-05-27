@@ -60,19 +60,16 @@ export class Projectile {
         $(this.$projectile).stop(true)
         this.asteroid=asteroid
 
-        let asteroid_center=[
-            parseInt($(asteroid.$asteroid).css("left"))+parseInt($(asteroid.$asteroid).css("width"))/2,
-            parseInt($(asteroid.$asteroid).css("top"))+parseInt($(asteroid.$asteroid).css("height"))/2
-        ]
+        let asteroidpos=asteroid.getAsteroidPosition()
 
         this.markspeed=asteroid.fallspeed
 
-        let top=Math.sqrt(Math.pow(asteroid.size/2,2)-Math.pow(this.pos+parseInt($(this.$projectile).width())/2-asteroid_center[0],2))
+        let top=Math.sqrt(Math.pow(asteroid.size/2,2)-Math.pow(this.pos+parseInt($(this.$projectile).width())/2-asteroidpos[0],2))
         let size=12
         $(this.$projectile).css({
             width: size,
             height: size,
-            top: top+asteroid_center[1],
+            top: top+asteroidpos[1],
             left: "-="+(size-parseInt($(this.$projectile).width()))/2
         })
         this.asteroid.addHitmarker(this)

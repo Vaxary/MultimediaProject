@@ -17,25 +17,24 @@ import {
 import {
     addAsteroidStateFrame,
     addDestroyedAsteroidFrame,
-    getAsteroidBase,
+    getAsteroidBase, setPowerupImg,
 } from "./asteroid.js";
 import {
     addPauseButtonImg,
     getPauseButton,
     getPauseButtonImg,
-    getRestartButton,
-    getRestartLabel, getSavedSound,
-    getScoreInfoLabel,
-    getScoreNameInput, getScorePlaceholder,
-    getScoreSaveButton, getScoreTable,
+    getSavedSound,
+    getScorePlaceholder,
+    getScoreTable,
     getShipHpBox, getSoundIcon, getSoundMuted, getSoundSlider,
-    getStartGameLabel, setSavedSound, setSoundMuted,
-    finishLoading,
+    setSavedSound, setSoundMuted,
+    finishLoading, getRestartOverlay, getScoreSystem,
 } from "./uilogic.js"
 
 export function initialization() {
     initProjectile()
     initAsteroid()
+    initPowerup()
     initShipStates()
     initShipHpBox()
 }
@@ -43,7 +42,6 @@ export function initialization() {
 export function initializeui() {
     initRestartOverlay()
     initPauseButton()
-    initStartGameLabel()
     initScoreSaveSystem()
     initSoundSlider()
 }
@@ -63,12 +61,6 @@ export function loadShipFirst() {
         left: getGameSpaceWidth()/2-parseInt(getPauseButton().css("width"))/2
     })
     setTimeout(finishLoading, 1000)
-}
-
-function initStartGameLabel() {
-    getStartGameLabel().css({
-        top: getGameSpaceHeight()/2-75
-    })
 }
 
 function initShipHpBox() {
@@ -117,51 +109,11 @@ export function initScoreTable() {
 }
 
 function initScoreSaveSystem() {
-    initScoreInfoLabel()
-    initScoreNameInput()
-    initSaveScoreButton()
-}
-
-function initScoreInfoLabel() {
-    $(getScoreInfoLabel()).css({
-        top: getGameSpaceHeight()/2-250
-    })
-}
-
-function initScoreNameInput() {
-    $(getScoreNameInput()).css({
-        width: 150,
-        height: 40,
-        top: getGameSpaceHeight()/2-200,
-        left: getGameSpaceWidth()/2-75
-    })
-}
-
-function initSaveScoreButton() {
-    $(getScoreSaveButton()).css({
-        scale: 1,
-        top: getGameSpaceHeight()/2-140,
-        left: getGameSpaceWidth()/2-(getScoreSaveButton().width()/2)
-    })
+    getScoreSystem().hide()
 }
 
 function initRestartOverlay() {
-    initRestartButton()
-    initRestartLabel()
-}
-
-function initRestartButton() {
-    $(getRestartButton()).css({
-        scale: 1,
-        left: getGameSpaceWidth()/2-30,
-        top: getGameSpaceHeight()/2-30
-    })
-}
-
-function initRestartLabel() {
-    $(getRestartLabel()).css({
-        top: getGameSpaceHeight()/2-75
-    })
+    getRestartOverlay().hide()
 }
 
 function initProjectile() {
@@ -218,15 +170,31 @@ function initAsteroid() {
     for (let i=1; i <= 6; i++) {
         let frame=new Image()
         frame.src="../assets/asteroid"+i+".png"
-        addAsteroidStateFrame(frame)
+        addAsteroidStateFrame(frame, "basic")
+    }
+    for (let i=1; i <= 6; i++) {
+        let frame=new Image()
+        frame.src="../assets/special_asteroid"+i+".png"
+        addAsteroidStateFrame(frame, "special")
     }
 
-    let frametimes=[50,40,30,30,30,40,40,50,250]
+    let frametimes=[50,40,30,30,30,80,80,250]
     for (let i=1; i <= frametimes.length; i++) {
         let frame=new Image()
         frame.src="../assets/asteroid_destroyed"+i+".png"
-        addDestroyedAsteroidFrame([frame,frametimes[i-1]])
+        addDestroyedAsteroidFrame([frame,frametimes[i-1]],"basic")
     }
+    for (let i=1; i <= frametimes.length; i++) {
+        let frame=new Image()
+        frame.src="../assets/special_asteroid_destroyed"+i+".png"
+        addDestroyedAsteroidFrame([frame,frametimes[i-1]],"special")
+    }
+}
+
+function initPowerup() {
+    let img=new Image()
+    img.src="../assets/powerup.png"
+    setPowerupImg(img)
 }
 
 function initSoundSlider() {

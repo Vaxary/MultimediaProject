@@ -1,8 +1,9 @@
 :root {
     --background: rgb(121, 118, 118);
     --scorebody: rgb(159, 159, 159);
+    --debughitbox: rgba(115, 166, 230, 0.73);
 }
-
+@font-face { font-family: pixelfont; src: url('assets/PressStart2P.ttf'); }
 * {
     margin: 0;
     padding: 0;
@@ -39,7 +40,6 @@ body {
 }
 
 .asteroidscorebox p {
-    font-weight: 600;
     color: white;
     text-align: center;
     width: 100%;
@@ -51,11 +51,27 @@ body {
     z-index: 1;
 }
 
+.powerup {
+    position: absolute;
+    z-index: 1;
+}
+
 .shiphpicon {
     position: absolute;
     width: 32px;
     height: 28px;
     z-index: 4;
+}
+
+#scorelabel {
+    display: none;
+    top: 5px;
+    right: 10px;
+    color: white;
+    font-size: 20pt;
+    z-index: 4;
+    position: absolute;
+    text-shadow: black 0 0 10px;
 }
 
 #shiphpbox {
@@ -74,6 +90,7 @@ body {
 }
 
 #pausebutton {
+    position: absolute;
     top: 10px;
     left: 10px;
 }
@@ -95,25 +112,30 @@ body {
 }
 
 #restartoverlay {
-    display: none;
+    position: absolute;
+    bottom: 300px;
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    row-gap: 25px;
+    z-index: 4;
 }
 
 #restartlabel {
-    position: absolute;
-    z-index: 4;
     text-align: center;
-    width: 100%;
     color: white;
-    font-weight: bold;
     font-size: 20pt;
     text-shadow: black 3px 3px 3px;
 }
 
 .circularbutton {
+    scale: 1;
     width: 60px;
     height: 60px;
     z-index: 4;
-    position: absolute;
     background-repeat: no-repeat;
     background-size: cover;
     border-radius: 40%;
@@ -164,7 +186,7 @@ body {
     position: absolute;
     z-index: 1;
     font-weight: 450;
-    font-size: 16pt;
+    font-size: 18pt;
     border-radius: 30px;
     line-height: 28px;
 }
@@ -173,7 +195,7 @@ body {
 .helpimg {
     vertical-align: middle;
     scale: 2;
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
 .helphpimg {
@@ -194,24 +216,12 @@ body {
     width: 100%;
     height: 100%;
     z-index: 3;
-    /*background-color: rgba(150, 150, 150, 0.2);*/
     backdrop-filter: blur(5px);
 }
 
-#scorelabel {
-    display: none;
-    right: 10px;
-    color: white;
-    font-weight: bold;
-    font-size: 20pt;
-    z-index: 4;
-    position: absolute;
-    text-shadow: black 3px 3px 3px;
-}
-
 #startgamelabel {
-    display: none;
     text-align: center;
+    top: 375px;
     width: 100%;
     position: absolute;
     color: white;
@@ -221,6 +231,7 @@ body {
 }
 
 #gamespace {
+    font-family: pixelfont, serif;
     background-image: url("assets/spacebackground.png");
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -232,23 +243,71 @@ body {
     width: 600px;
     height: 900px;
     image-rendering: pixelated;
+    scale: 1;
+}
+
+@media (max-width : 1449px) {
+    body {
+        height: 1000px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #neptun {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+    }
+
+    #scoretablebox {
+        position: absolute;
+        right: 10px;
+        top: 1000px;
+    }
+
+    #soundsliderbox {
+        position: absolute;
+        justify-content: center;
+        width: 100%;
+    }
+
+}
+
+@media (min-width: 1450px) {
+    #neptun {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
+
+    #scoretablebox {
+        position: absolute;
+        right: 10px;
+        top: 140px;
+    }
+
+    #soundsliderbox {
+        width: auto;
+        position: absolute;
+        top: 90px;
+        right: 20px;
+    }
+
 }
 
 .debughitbox {
     border-radius: 50%;
     position: absolute;
-    background-color: rgba(115, 166, 230, 0.73);
+    background-color: var(--debughitbox);
     z-index: 4;
 }
 
 #soundsliderbox {
-    width: auto;
     height: auto;
     display: flex;
-    position: absolute;
     align-items: center;
-    top: 90px;
-    right: 20px;
     image-rendering: pixelated;
 }
 
@@ -273,42 +332,37 @@ body {
 #scoreinfo {
     font-weight: bold;
     font-size: 20pt;
-    position: absolute;
     text-align: center;
-    width: 100%;
     z-index: 4;
     color: white;
-}
-
-#savescorebutton {
-    position: absolute;
-    z-index: 4;
 }
 
 #nameinput {
     text-align: center;
     font-size: 12pt;
-    position: absolute;
-    z-index: 4;
+    width: 200px;
 }
 
 #savescoresystem {
-    display: none;
+    position: absolute;
+    top: 100px;
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    row-gap: 25px;
+    z-index: 4;
 }
 
 #neptun {
     color: white;
     font-weight: 450;
     font-size: 16pt;
-    position: absolute;
-    top: 10px;
-    right: 10px;
 }
 
 #scoretablebox {
-    position: absolute;
-    right: 10px;
-    top: 140px;
     color: white;
     height: auto;
 }

@@ -2,10 +2,10 @@ import {
     addAsteroid,
     Asteroid,
     getAsteroids,
-    getDestroyedAsteroids
+    getDestroyedAsteroids, getIsThereSpecial, getPowerups, setIsThereSpecial
 } from "./asteroid.js";
 import {
-    getShip,
+    getShip, getShootpatterLength,
     initializeShip
 } from "./ship.js";
 import {loadShip} from "./initialization.js";
@@ -37,11 +37,11 @@ export function startGameLogicLoop() {
     self.game_logic_loop=setInterval(function () {
         moveProjectiles(game_update_time)
         moveAsteroids(game_update_time)
+        movePowerups(game_update_time)
         rotateDestroyedAsteroids(game_update_time)
         detectProjectileHit()
-        if (!getShip.shielded) {
-            detectSpaceshipHit()
-        }
+        detectSpaceshipPickup()
+        detectSpaceshipHit()
         updateAnimationTimes(game_update_time)
         addTimeSinceLastAsteroidSpawn(game_update_time)
         addMiliSecondsElapsed(game_update_time)
@@ -158,9 +158,30 @@ function moveAsteroids(time) {
         if (parseInt($(current_asteroid.$asteroid).css("top")) >= getGameSpaceHeight()) {
             current_asteroid.removeMarkers()
             current_asteroid.remove()
-            //getShip().registerPlanetHit()
+            if (current_asteroid.type==="special") {
+                setIsThereSpecial(false)
+            }
         }
     })
+}
+
+function movePowerups(time) {
+    getPowerups().forEach(function (current_powerup) {
+        let sign = current_powerup.rotationspeed<0 ? "-=" : "+="
+        let rotationspeed=current_powerup.rotationspeed*time/5
+        let fallspeed=current_powerup.fallspeed*time/5
+        $(current_powerup.$powerup).animate({
+            rotate: sign+String(Math.abs(rotationspeed))+"deg",
+            top: "+="+String(fallspeed)+"px"
+        },time, "linear").animate({
+            rotate: sign+String(Math.abs(rotationspeed))+"deg",
+            top: "+="+String(fallspeed)+"px"
+        },time, "linear")
+        if (parseInt($(current_powerup.$powerup).css("top")) >= getGameSpaceHeight()) {
+            current_powerup.removePowerup()
+        }
+    })
+
 }
 
 function rotateDestroyedAsteroids(time) {
@@ -184,21 +205,18 @@ function detectProjectileHit() {
     getProjectiles().forEach( function (current_projectile) {
         getAsteroids().forEach(function (current_asteroid) {
 
-            let asteroidpos=[
-                parseInt($(current_asteroid.$asteroid).css("left"))+parseInt($(current_asteroid.$asteroid).css("width"))/2,
-                parseInt($(current_asteroid.$asteroid).css("top"))+parseInt($(current_asteroid.$asteroid).css("height"))/2
-            ]
+            let asteroidpos=current_asteroid.getAsteroidPosition()
 
             let shotposl=[
-                parseInt($(current_projectile.$projectile).css("left")),
-                parseInt($(current_projectile.$projectile).css("top"))
+                parseFloat($(current_projectile.$projectile).css("left")),
+                parseFloat($(current_projectile.$projectile).css("top"))
             ]
             let shotposr=[
-                parseInt($(current_projectile.$projectile).css("left"))+parseInt($(current_projectile.$projectile).css("width")),
-                parseInt($(current_projectile.$projectile).css("top"))
+                parseFloat($(current_projectile.$projectile).css("left"))+parseInt($(current_projectile.$projectile).css("width")),
+                parseFloat($(current_projectile.$projectile).css("top"))
             ]
-            if (calculate_distance(asteroidpos, shotposl) <= Math.pow(parseInt($(current_asteroid.$asteroid).css("width"))/2,2) ||
-                calculate_distance(asteroidpos, shotposr) <= Math.pow(parseInt($(current_asteroid.$asteroid).css("width"))/2,2)) {
+            if (calculate_distance(asteroidpos, shotposl) <= Math.pow(asteroidpos[2],2) ||
+                calculate_distance(asteroidpos, shotposr) <= Math.pow(asteroidpos[2],2)) {
                 current_asteroid.registerHit(current_projectile)
             }
         })
@@ -208,29 +226,13 @@ function detectProjectileHit() {
 function detectSpaceshipHit() {
     if (!getShip().shielded) {
         getAsteroids().forEach(asteroid=>{
-            let asteroidradius=parseInt($(asteroid.$asteroid).css("width"))/2
-            let asteroidpos=[
-                parseInt($(asteroid.$asteroid).css("left"))+parseInt($(asteroid.$asteroid).css("width"))/2,
-                parseInt($(asteroid.$asteroid).css("top"))+parseInt($(asteroid.$asteroid).css("height"))/2
-            ]
-            let shipposleft=[
-                getShip().pos+getShip().width/3.75,
-                getShip().top+getShip().height/7*5,
-                getShip().width/3.6
-            ]
-            let shipposright=[
-                getShip().pos+(getShip().width-getShip().width/3.75),
-                getShip().top+getShip().height/7*5,
-                getShip().width/3.6
-            ]
-            let shippostop=[
-                getShip().pos+getShip().width/2,
-                getShip().top+getShip().height/4,
-                getShip().width/4
-            ]
-            if (calculate_distance(asteroidpos, shipposleft) <= Math.pow(shipposleft[2]+asteroidradius,2) ||
-                calculate_distance(asteroidpos, shipposright) <= Math.pow(shipposright[2]+asteroidradius,2) ||
-                calculate_distance(asteroidpos, shippostop) <= Math.pow(shippostop[2]+asteroidradius,2)) {
+            let asteroidpos=asteroid.getAsteroidPosition()
+
+            let shippos=getShip().getHitboxPositions()
+
+            if (calculate_distance(asteroidpos, shippos["left"]) <= Math.pow(shippos["left"][2]+asteroidpos[2],2) ||
+                calculate_distance(asteroidpos, shippos["right"]) <= Math.pow(shippos["right"][2]+asteroidpos[2],2) ||
+                calculate_distance(asteroidpos, shippos["middle"]) <= Math.pow(shippos["middle"][2]+asteroidpos[2],2)) {
 
                 asteroid.changeToDestroyed()
                 asteroid.asteroid_destroyed_sound.volume=getSoundSlider().val()/100
@@ -239,12 +241,33 @@ function detectSpaceshipHit() {
                 asteroid.removeMarkers()
                 $(asteroid.$asteroid).stop(true)
                 asteroid.startAsteroidDestroyAnimation()
+                if (asteroid.type==="special") {
+                    setIsThereSpecial(false)
+                }
 
                 getShip().register_ship_hit()
             }
         })
     }
+}
 
+function detectSpaceshipPickup() {
+    getPowerups().forEach(powerup=>{
+        let poweruppos=powerup.getPowerupPosition()
+
+
+        let shippos=getShip().getHitboxPositions()
+
+        if (calculate_distance(poweruppos, shippos["left"]) <= Math.pow(shippos["left"][2]+poweruppos[2],2) ||
+            calculate_distance(poweruppos, shippos["right"]) <= Math.pow(shippos["right"][2]+poweruppos[2],2) ||
+            calculate_distance(poweruppos, shippos["middle"]) <= Math.pow(shippos["middle"][2]+poweruppos[2],2)) {
+            powerup.removePowerup()
+            /*asteroid.asteroid_destroyed_sound.volume=getSoundSlider().val()/100
+            asteroid.asteroid_destroyed_sound.play()*/
+
+            getShip().levelUp()
+        }
+    })
 }
 
 //asteroid functions
@@ -259,13 +282,26 @@ export function spawn_asteroid() {
     } else {
         rotation=rotation+0.5
     }
+    let chance=Math.random()
+    console.log(chance)
+    let spawned_asteroid
+    if (getShip().lvl < getShootpatterLength() && getMiliSecondsElapsed()/1000>40*getShip().lvl+20 && chance<0.5 && !getIsThereSpecial()) {
+        spawned_asteroid = new Asteroid(
+            Math.random(),
+            base_asteroid_speed+scaleAsteroidSpeed(),
+            rotation,
+            "special"
+        )
+    } else {
+        spawned_asteroid = new Asteroid(
+            Math.random(),
+            base_asteroid_speed+scaleAsteroidSpeed(),
+            rotation,
+            "basic"
+        )
+    }
 
-    let spawned_asteroid = new Asteroid(
-        Math.random(),
-        base_asteroid_speed+scaleAsteroidSpeed(),
-        rotation,
-        getAsteroids().length
-    );
+
 
     addAsteroid(spawned_asteroid)
     setTimeSinceLastAsteroidSpawn(0)
@@ -284,7 +320,7 @@ export function updateAnimationTimes(time) {
 
 function scaleAsteroidSpawn() {
     const max_second_scaling=200
-    const scale_per_second=6
+    const scale_per_second=8
     return Math.min(max_second_scaling,getMiliSecondsElapsed()/1000)*scale_per_second
 }
 
@@ -354,6 +390,7 @@ export function restartGame() {
     clearTimeout(getAsteroidSpawner())
     setMiliSecondsElapsed(0)
     setTimeSinceLastAsteroidSpawn(0)
+    setIsThereSpecial(false)
     initializeShip()
     refillShipHpBox()
     updateScoreLabel()
@@ -428,6 +465,7 @@ export function setUpAfterStartGame() {
             togglePause()
         }
     })
+    setIsThereSpecial(false)
     $(getPauseButton()).css({left: '', top: ''})
     $(getShipHpBox()).show()
     $(getScoreLabel()).show()

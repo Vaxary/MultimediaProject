@@ -228,7 +228,6 @@ export function pauseWithoutAnimations() {
 }
 
 export function finishLoading() {
-    getStartGameLabel().show()
     clearLoadingInterval()
     getLoadingOverlay().remove()
 }
