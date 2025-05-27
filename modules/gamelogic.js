@@ -124,7 +124,6 @@ export function getGameSpaceWidth() {
 function moveProjectiles(time) {
     let speed=15*time/10
     getProjectiles().forEach(function (current_projectile) {
-        //console.log( $(current_projectile.$projectile).css("top"))
         $(current_projectile.$projectile).animate({
             top: "-="+speed
         }, time, "linear").animate({
@@ -179,6 +178,7 @@ function movePowerups(time) {
         },time, "linear")
         if (parseInt($(current_powerup.$powerup).css("top")) >= getGameSpaceHeight()) {
             current_powerup.removePowerup()
+            setIsThereSpecial(false)
         }
     })
 
@@ -265,7 +265,7 @@ function detectSpaceshipPickup() {
             /*asteroid.asteroid_destroyed_sound.volume=getSoundSlider().val()/100
             asteroid.asteroid_destroyed_sound.play()*/
 
-            getShip().levelUp()
+            getShip().startShipLvlUpAnimation()
         }
     })
 }
@@ -283,9 +283,9 @@ export function spawn_asteroid() {
         rotation=rotation+0.5
     }
     let chance=Math.random()
-    console.log(chance)
+    //console.log(chance)
     let spawned_asteroid
-    if (getShip().lvl < getShootpatterLength() && getMiliSecondsElapsed()/1000>40*getShip().lvl+20 && chance<0.5 && !getIsThereSpecial()) {
+    if (getShip().lvl < getShootpatterLength() && ((getMiliSecondsElapsed()/1000>40*getShip().lvl+20 && chance<0.25) || getShip().debug_mode) && !getIsThereSpecial()) {
         spawned_asteroid = new Asteroid(
             Math.random(),
             base_asteroid_speed+scaleAsteroidSpeed(),
@@ -344,6 +344,9 @@ export function pauseGame() {
         $(element.$asteroid).stop(true)
         $(element.$score_earned_label).stop(true)
     })
+    getPowerups().forEach(element=> {
+        $(element.$powerup).stop(true)
+    })
     getProjectiles().forEach(element=>  {
         $(element.$projectile).stop(true)
     })
@@ -367,8 +370,13 @@ export function unpauseGame() {
     getDestroyedAsteroids().forEach(element => {
         element.startAsteroidDestroyAnimation(element.current_destroyed_animframe,true)
     })
-    if (getShip().shielded) {
-        getShip().startShipHitAnimation(getShip().animframe,true)
+    switch (getShip().currentanimation) {
+        case "hit":
+            getShip().startShipHitAnimation(getShip().animframe,true)
+            break
+        case "lvlup":
+            getShip().startShipLvlUpAnimation(getShip().animframe,true)
+            break
     }
     getPauseScreen().hide()
     $(getPauseButton()).attr({
@@ -405,6 +413,11 @@ export function restartGame() {
         element.$asteroid.remove()
     })
     getDestroyedAsteroids().splice(0,getDestroyedAsteroids().length)
+
+    getPowerups().forEach(element => {
+        element.$powerup.remove()
+    })
+    getPowerups().splice(0, getPowerups().length)
 
     getProjectiles().forEach(element => {
         clearTimeout(element.animtimeout)

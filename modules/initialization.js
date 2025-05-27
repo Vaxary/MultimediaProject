@@ -150,6 +150,9 @@ function initShipStates() {
     let ship_shielded=new Image()
     ship_shielded.src="../assets/spaceshipshielded.png"
     addShipState(ship_shielded)
+    let ship_lvlup=new Image()
+    ship_lvlup.src="../assets/spaceshiplvlup.png"
+    addShipState(ship_lvlup)
 
     let frametimes=[120,80,60,40,40,40,40,40,40,40,50,70,100,500]
     for (let i = 1; i <= frametimes.length; i++) {

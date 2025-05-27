@@ -261,7 +261,6 @@ export class Asteroid {
     removePowerup() {
         $(this.$powerup).remove()
         powerups.splice(powerups.indexOf(this), 1)
-        setIsThereSpecial(false)
     }
 
     getAsteroidPosition() {

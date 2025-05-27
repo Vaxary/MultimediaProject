@@ -15,6 +15,7 @@ import {
     getSoundSlider, pauseWithoutAnimations,
     updateShipHpBox
 } from "./uilogic.js"
+import {setIsThereSpecial} from "./asteroid.js";
 self.ship_states=[]
 self.destroyed_ship_frames=[]
 self.ship_hp_indicator_icons=[]
@@ -44,6 +45,7 @@ export class Ship {
         this.animtime=0
         this.animtimeout=0
         this.lvl=0
+        this.currentanimation=""
         if (this.debug_mode) {
             this.setupDebugHitboxes()
         }
@@ -137,6 +139,7 @@ export class Ship {
         if (!docontinue) {
             this.animframe=fromframe
             this.animtime=0
+            this.currentanimation="hit"
         }
         if (fromframe < 10) {
             this.$ship.attr({src: self.ship_states[(fromframe+1)%2].src})
@@ -149,7 +152,25 @@ export class Ship {
             this.animtimeout=setTimeout(function () {
                 getShip().$ship.attr({src: self.ship_states[0].src})
                 getShip().shielded=false
+                this.currentanimation=""
             }, 4500-getShip().animtime)
+        }
+    }
+
+    startShipLvlUpAnimation(fromframe=0, docontinue=false) {
+        if (!docontinue) {
+            this.animframe=fromframe
+            this.animtime=0
+            this.currentanimation="lvlup"
+        }
+        if (fromframe < 10) {
+            this.$ship.attr({src: self.ship_states[fromframe%2===0?3:0].src})
+            this.animtimeout=setTimeout(function () {
+                getShip().startShipLvlUpAnimation(fromframe+1)
+            }, 120-fromframe/2*10-getShip().animtime)
+        } else {
+            this.currentanimation=""
+            this.levelUp()
         }
     }
 
@@ -178,7 +199,6 @@ export class Ship {
             audio.src=getShip().shoot_sound.src
 
             audio.volume=getSoundSlider().val()/100
-            //console.log(audio.volume)
             audio.playbackRate=1.5
             let pos=Math.ceil(getShip().pos+getShip().width/2-getProjWidth()/2)
 
@@ -213,11 +233,19 @@ export class Ship {
     register_ship_hit() {
         this.shielded=true
         this.hit=true
-        this.hp-=1
-        updateShipHpBox()
-        if (this.hp > 0) {
+
+
+        if (this.hp > 1) {
+            if (this.currentanimation!=="lvlup") {
+                this.hp-=1
+                updateShipHpBox()
+            }
+
+            clearTimeout(this.animtimeout)
             this.startShipHitAnimation()
         } else {
+            this.hp-=1
+            updateShipHpBox()
             getPauseButton().hide()
             this.disableShipEventhandlers()
             this.$ship.css({
@@ -287,6 +315,7 @@ export class Ship {
 
     levelUp() {
         this.lvl+=1
+        setIsThereSpecial(false)
     }
 
     getHitboxPositions() {
