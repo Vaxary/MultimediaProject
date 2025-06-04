@@ -28,7 +28,7 @@ self.shootpatterns= [ //first num is offset from centre, second is type of bulle
 
 export class Ship {
     constructor() {
-        this.$ship=$("<img src='../assets/spaceship.png' alt='player spaceship' id='player'>")
+        this.$ship=$("<img src='assets/spaceship.png' alt='player spaceship' id='player'>")
         this.hp=3
         //this.planethp=10
         this.score=0
@@ -37,7 +37,7 @@ export class Ship {
         this.hit=false
         this.pos=0
         this.width=0
-        this.shoot_sound=new Audio("../assets/shipshootsound.mp3")
+        this.shoot_sound=new Audio("assets/shipshootsound.mp3")
         this.height=0
         this.top=0
         this.shootinterval=0

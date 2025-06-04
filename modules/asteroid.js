@@ -16,7 +16,7 @@ export class Asteroid {
         this._hitmarkers=[]
         this._$asteroid=cloneAsteroid()
         this.animtimeout=0
-        this.asteroid_destroyed_sound = new Audio("../assets/asteroid_destroyed.wav");
+        this.asteroid_destroyed_sound = new Audio("assets/asteroid_destroyed.wav");
         this.type=type
         this.$powerup=0
         if (this.type==="special") {
